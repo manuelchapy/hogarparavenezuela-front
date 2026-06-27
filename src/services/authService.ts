@@ -19,7 +19,7 @@ import type {
   BootstrapAdminForm,
   SolicitudForm,
 } from '@/modules/auth/schemas/authSchemas';
-import type { LoginMode } from '@/constants/authPortals';
+import type { LoginMode } from '@/utils/authPortal';
 import { assertLoginMatchesPortal } from '@/utils/authPortal';
 import { buildUbicacionPayload } from '@/services/geoService';
 

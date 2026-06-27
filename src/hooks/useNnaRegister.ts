@@ -1,9 +1,10 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
 import {
-  nnaRegisterSchema,
+  createNnaRegisterSchema,
   type NnaRegisterForm,
 } from '@/modules/nna/schemas/nnaSchemas';
 import { registerNna } from '@/services/nnaService';
@@ -27,18 +28,18 @@ const defaultValues: Partial<NnaRegisterForm> = {
 };
 
 export const useNnaRegister = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
   const refreshPendingCount = useSyncStore((s) => s.refreshPendingCount);
   const [step, setStep] = useState(0);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isGpsLoading, setIsGpsLoading] = useState(false);
-
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoError, setPhotoError] = useState<string | null>(null);
 
   const form = useForm<NnaRegisterForm>({
-    resolver: zodResolver(nnaRegisterSchema),
+    resolver: zodResolver(createNnaRegisterSchema()),
     defaultValues,
     mode: 'onTouched',
   });
@@ -48,7 +49,7 @@ export const useNnaRegister = () => {
 
   const captureGps = () => {
     if (!navigator.geolocation) {
-      setSubmitError('GPS no disponible en este dispositivo');
+      setSubmitError(t('nna.gpsUnavailable'));
       return;
     }
 
@@ -61,7 +62,7 @@ export const useNnaRegister = () => {
         setIsGpsLoading(false);
       },
       () => {
-        setSubmitError('No se pudo obtener la ubicación GPS');
+        setSubmitError(t('nna.gpsFailed'));
         setIsGpsLoading(false);
       },
       { enableHighAccuracy: true, timeout: 15000 },
@@ -71,7 +72,7 @@ export const useNnaRegister = () => {
   const nextStep = async () => {
     if (step === 0) {
       if (!photoFile) {
-        setPhotoError('Debes capturar o seleccionar una foto');
+        setPhotoError(t('nna.photoRequired'));
         return;
       }
       setPhotoError(null);
@@ -90,7 +91,7 @@ export const useNnaRegister = () => {
       const voz = form.getValues('vozDelNna');
       if (!voz) {
         form.setError('vozDelNna', {
-          message: 'Completa la voz del NNA para adolescentes',
+          message: t('nna.adolescentVoiceRequired'),
         });
         return;
       }
@@ -104,12 +105,12 @@ export const useNnaRegister = () => {
 
   const onSubmit = form.handleSubmit(async (data) => {
     if (!user?.cedula) {
-      setSubmitError('Sesión inválida — vuelve a iniciar sesión');
+      setSubmitError(t('auth.invalidSession'));
       return;
     }
 
     if (!photoFile) {
-      setPhotoError('Debes capturar o seleccionar una foto');
+      setPhotoError(t('nna.photoRequired'));
       setStep(0);
       return;
     }
@@ -122,27 +123,24 @@ export const useNnaRegister = () => {
       if (result.mode === 'offline') {
         navigate(ROUTES.NNA_LIST, {
           state: {
-            message: `Registro guardado offline (${result.idOfflineFallback}). Se sincronizará al reconectar.`,
+            message: t('nna.registerOfflineSaved', {
+              id: result.idOfflineFallback,
+            }),
           },
         });
         return;
       }
 
-      navigate(
-        ROUTES.NNA_DETAIL.replace(':id', result.result.nna._id),
-        {
-          state: {
-            message: result.result.created
-              ? `NNA registrado: ${result.result.nna.idUnico}`
-              : `Registro ya existía: ${result.result.nna.idUnico}`,
-          },
+      navigate(ROUTES.NNA_DETAIL.replace(':id', result.result.nna._id), {
+        state: {
+          message: result.result.created
+            ? t('nna.registerSuccess', { id: result.result.nna.idUnico })
+            : t('nna.registerDuplicate', { id: result.result.nna.idUnico }),
         },
-      );
+      });
     } catch (error) {
       setSubmitError(
-        error instanceof Error
-          ? error.message
-          : 'Error al registrar el NNA. Intenta de nuevo.',
+        error instanceof Error ? error.message : t('nna.registerError'),
       );
     }
   });

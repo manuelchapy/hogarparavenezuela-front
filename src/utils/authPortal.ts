@@ -2,12 +2,11 @@ import type { AuthUser } from '@/api/authTypes';
 import {
   ADMIN_ROLES,
   OPERATIVO_PORTAL_ROLES,
-  type UserRole,
 } from '@/constants/roles';
 import { ROUTES } from '@/constants/routes';
-import type { LoginMode } from '@/constants/authPortals';
+import i18n from '@/i18n';
 
-const roleLabel = (rol: UserRole): string => rol.replace(/_/g, ' ').toLowerCase();
+export type LoginMode = 'operativo' | 'admin';
 
 export const assertLoginMatchesPortal = (
   mode: LoginMode,
@@ -21,14 +20,10 @@ export const assertLoginMatchesPortal = (
   }
 
   if (mode === 'operativo' && ADMIN_ROLES.includes(user.rol)) {
-    throw new Error(
-      `La cédula ${user.cedula} corresponde a un administrador. Usa «Acceso administrador» en la pantalla de inicio.`,
-    );
+    throw new Error(i18n.t('auth.portalMismatchAdmin'));
   }
 
-  throw new Error(
-    `La cédula ${user.cedula} tiene rol ${roleLabel(user.rol)}. Este acceso es solo para ${mode === 'admin' ? 'administradores' : 'operadores de campo (rescatista, protección civil, médico o CPNNA)'}.`,
-  );
+  throw new Error(i18n.t('auth.portalMismatchRole'));
 };
 
 export const loginRedirectForMode = (mode: LoginMode): string =>

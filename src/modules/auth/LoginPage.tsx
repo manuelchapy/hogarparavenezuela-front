@@ -1,11 +1,15 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, Navigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { AppBrand } from '@/components/layout/AppBrand';
+import { AuthLayout } from '@/components/layout/AuthLayout';
+import { AlertBanner } from '@/components/ui/AlertBanner';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { LopnnaLegalNotice } from '@/components/ui/LopnnaLegalNotice';
-import { ViewApiHint } from '@/components/ui/ViewApiHint';
-import type { LoginMode } from '@/constants/authPortals';
+import { SurfaceCard } from '@/components/ui/SurfaceCard';
+import type { LoginMode } from '@/utils/authPortal';
 import { ROUTES } from '@/constants/routes';
 import { useAuth } from '@/hooks/useAuth';
 import {
@@ -21,10 +25,10 @@ interface LoginPageProps {
 }
 
 export const LoginPage = ({ mode }: LoginPageProps) => {
+  const { t } = useTranslation();
   const location = useLocation();
   const { isAuthenticated, isActive, setAuth } = useAuth();
   const isAdmin = mode === 'admin';
-  const loginRoute = isAdmin ? ROUTES.LOGIN_ADMIN : ROUTES.LOGIN_OPERATIVO;
   const accountBlocked = (location.state as { accountBlocked?: boolean } | null)
     ?.accountBlocked;
 
@@ -57,107 +61,106 @@ export const LoginPage = ({ mode }: LoginPageProps) => {
     }
   };
 
+  const submitButton = (
+    <Button
+      type="submit"
+      form="login-form"
+      className="w-full"
+      variant="accent"
+      isLoading={isSubmitting}
+    >
+      {t('auth.signIn')}
+    </Button>
+  );
+
   return (
-    <div className="flex h-dvh w-full flex-col bg-primary-800">
-      <div className="flex flex-1 flex-col overflow-y-auto px-5 py-8">
-        <header className="mb-6 text-center">
+    <AuthLayout
+      brand={
+        <>
           <Link
             to={ROUTES.WELCOME}
-            className="text-sm font-medium text-primary-200"
+            className="mb-4 inline-flex min-h-10 items-center text-sm font-semibold text-primary-200 lg:mb-6"
           >
-            ← Inicio
+            {t('auth.backHome')}
           </Link>
-          <h1 className="mt-4 text-2xl font-bold text-white">
-            {isAdmin ? 'Acceso administrador' : 'Acceso operativo'}
-          </h1>
-          <p className="mt-2 text-base text-primary-100">
-            {isAdmin
-              ? 'Administración del sistema'
-              : 'Rescatistas, protección civil, personal médico y CPNNA'}
-          </p>
-        </header>
+          <AppBrand
+            compact
+            title={
+              isAdmin ? t('auth.loginAdminTitle') : t('auth.loginOperativeTitle')
+            }
+            subtitle={
+              isAdmin
+                ? t('auth.loginAdminSubtitle')
+                : t('auth.loginOperativeSubtitle')
+            }
+          />
+        </>
+      }
+      mobileFooter={submitButton}
+    >
+      {accountBlocked && (
+        <AlertBanner tone="warning" className="mb-4">
+          {t('auth.accountBlocked')}
+        </AlertBanner>
+      )}
 
-        {accountBlocked && (
-          <p className="mb-4 rounded-xl bg-amber-100 px-4 py-3 text-base text-amber-950">
-            Tu cuenta no está activa. Si enviaste una solicitud en{' '}
-            <Link to={ROUTES.SOLICITUD} className="font-semibold underline">
-              /solicitud
-            </Link>
-            , espera la aprobación del administrador antes de iniciar sesión.
-          </p>
-        )}
-
+      <SurfaceCard>
         <form
           id="login-form"
           onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col gap-5 rounded-2xl bg-white p-5 shadow-xl"
+          className="flex flex-col gap-5 lg:grid lg:grid-cols-2 lg:gap-6"
           noValidate
         >
-          <ViewApiHint route={loginRoute} />
-
-          {!isAdmin && (
-            <p className="text-sm leading-relaxed text-text-secondary">
-              Flujo operativo:{' '}
-              <Link to={ROUTES.SOLICITUD} className="font-medium text-primary-700">
-                solicita acceso
-              </Link>{' '}
-              (POST /api/auth/solicitud) → el admin aprueba → inicia sesión aquí.
-              Una cédula recién solicitada (p. ej. V18765432) no puede entrar
-              mientras esté PENDIENTE.
-            </p>
-          )}
-
           <Input
-            label="Cédula *"
-            placeholder="V12345678"
+            label={t('auth.cedulaLabel')}
+            placeholder={t('auth.cedulaPlaceholder')}
             autoComplete="username"
             inputMode="text"
             error={errors.cedula?.message}
             {...register('cedula')}
           />
           <Input
-            label="Credencial oficial (si aplica)"
-            placeholder={isAdmin ? 'ADMIN-001' : 'RC-AR-0012'}
+            label={t('auth.credentialLabel')}
+            placeholder={
+              isAdmin
+                ? t('auth.credentialAdminPlaceholder')
+                : t('auth.credentialOperativePlaceholder')
+            }
             error={errors.credencialOficialId?.message}
             {...register('credencialOficialId')}
           />
 
           {errors.root && (
-            <p className="text-sm font-medium text-danger-500" role="alert">
+            <AlertBanner tone="error" className="lg:col-span-2">
               {errors.root.message}
-            </p>
+            </AlertBanner>
           )}
 
-          {isAdmin ? (
-            <Link
-              to={ROUTES.BOOTSTRAP_ADMIN}
-              className="text-center text-base font-medium text-primary-700"
-            >
-              ¿Primera vez? Registrar administrador
-            </Link>
-          ) : (
-            <Link
-              to={ROUTES.SOLICITUD}
-              className="text-center text-base font-medium text-primary-700"
-            >
-              ¿No tienes cuenta? Solicita acceso
-            </Link>
-          )}
+          <div className="lg:col-span-2">
+            {isAdmin ? (
+              <Link
+                to={ROUTES.BOOTSTRAP_ADMIN}
+                className="text-center text-base font-semibold text-primary-700"
+              >
+                {t('auth.bootstrapAdminLink')}
+              </Link>
+            ) : (
+              <Link
+                to={ROUTES.SOLICITUD}
+                className="text-center text-base font-semibold text-primary-700"
+              >
+                {t('auth.requestAccessLink')}
+              </Link>
+            )}
+          </div>
 
-          <LopnnaLegalNotice variant="identity" />
+          <div className="lg:col-span-2">
+            <LopnnaLegalNotice variant="identity" />
+          </div>
+
+          <div className="hidden lg:col-span-2 lg:block">{submitButton}</div>
         </form>
-      </div>
-
-      <div className="sticky bottom-0 border-t border-primary-900/30 bg-primary-800 p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
-        <Button
-          type="submit"
-          form="login-form"
-          className="w-full"
-          isLoading={isSubmitting}
-        >
-          Iniciar sesión
-        </Button>
-      </div>
-    </div>
+      </SurfaceCard>
+    </AuthLayout>
   );
 };

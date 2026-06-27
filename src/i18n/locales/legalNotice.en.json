@@ -1,0 +1,60 @@
+{
+  "normativeBase": "Legal basis:",
+  "expandHint": "Read notice",
+  "identity": {
+    "title": "Legal notice — identity and system access",
+    "articles": [
+      "LOPNNA Arts. 4-A and 401",
+      "Constitution Art. 78",
+      "Penal Code — Ideological falsehood"
+    ],
+    "paragraphs": [
+      "This platform operates under Venezuelan law: Constitution, Organic Law for the Protection of Children and Adolescents (LOPNNA), and applicable regulations. All access is subject to administrative verification.",
+      "Access requests and login require real identification (ID and official credential when applicable). Using another person's documents, altering ID photos, impersonation, or falsifying institution affiliation may constitute ideological falsehood under the Penal Code.",
+      "Every request, approval, and operational login is audited. Administration may cross-check with official entities. An account approved on false data invalidates subsequent NNA actions and exposes the offender to administrative and criminal sanctions.",
+      "Only accredited personnel may intervene in NNA rescue and traceability. Good faith or disaster urgency does not exempt those who access the system with falsified identity."
+    ]
+  },
+  "registration": {
+    "title": "Legal commitment — NNA registration",
+    "articles": [
+      "LOPNNA Arts. 15, 16, 18, 19, 26, 80 and 401",
+      "Constitution Art. 78 — Best interest of the child"
+    ],
+    "paragraphs": [
+      "The registration record and NNA photograph are public documents in an emergency context. Whoever submits data acts as guarantor of public faith: information must be truthful, complete, and accurate.",
+      "Immediate registration protects the NNA against trafficking, institutional disappearance, and loss of family ties. Omitting, altering, or inventing data weakens reunification and may constitute ideological falsehood.",
+      "If the NNA is an adolescent, LOPNNA Art. 80 requires hearing and recording their voice. Falsifying that process exposes the operator to legal liability.",
+      "Under no circumstances may an NNA be removed from the area without prior registration and formal handover to competent authority."
+    ]
+  },
+  "timeline": {
+    "title": "Notice — traceability and transfers",
+    "articles": ["LOPNNA Arts. 15, 16, 126 and 158–160", "LOPNNA Art. 4-A"],
+    "paragraphs": [
+      "The seismic emergency does not authorize transfers to private residences or delivery to persons without official credentials. Recording false transfer or shelter data may hide the NNA's real location.",
+      "Transfer and shelter events must link to authorized care entities. Rescuers cannot designate provisional custodians; that is CPNNA's exclusive competence.",
+      "Each timeline milestone is audited with operator ID, date, and time. Falsifying the chain of custody carries severe civil and criminal liability."
+    ]
+  },
+  "legalClosure": {
+    "title": "Delivery act and legal closure",
+    "articles": [
+      "LOPNNA Arts. 158, 160, 401 and 402",
+      "Constitution Art. 49 — Due process",
+      "Penal Code — Ideological falsehood"
+    ],
+    "paragraphs": [
+      "Legal closure formalizes delivery of the NNA to CPNNA or an accredited receiving authority. The scanned act, act code, and authority data must match a real signed document.",
+      "Altering, omitting, or falsifying delivery act data constitutes ideological falsehood under the Penal Code.",
+      "By registering legal closure, the operator declares under public faith that the NNA is under administrative protection."
+    ]
+  },
+  "compact": {
+    "title": "LOPNNA framework",
+    "articles": ["LOPNNA", "Constitution Arts. 49 and 78"],
+    "paragraphs": [
+      "Hogar para Venezuela documents every NNA action under LOPNNA and disaster rescue protocol. Falsifying identity, registration, transfers, or delivery acts is a crime and is recorded in institutional audit."
+    ]
+  }
+}

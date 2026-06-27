@@ -38,7 +38,7 @@ export const GeoSelect = ({
     <div className="flex w-full flex-col gap-1.5">
       <label
         htmlFor={selectId}
-        className="text-base font-medium text-text-primary"
+        className="text-base font-semibold text-text-primary"
       >
         {label}
       </label>
@@ -49,10 +49,8 @@ export const GeoSelect = ({
         disabled={disabled || isLoading}
         onChange={(event) => onChange(event.target.value)}
         className={[
-          'min-h-12 w-full appearance-none rounded-xl border-2 border-slate-300 bg-white px-4 py-3',
-          'text-base text-text-primary',
-          'focus:border-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-100',
-          error ? 'border-danger-500' : '',
+          'form-field appearance-none',
+          error ? 'border-danger-500 focus:border-danger-500 focus:ring-red-100' : '',
           className,
         ].join(' ')}
         {...props}

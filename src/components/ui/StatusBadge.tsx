@@ -2,13 +2,18 @@ import { CATALOG_KEYS } from '@/constants/catalogKeys';
 import { useCatalog } from '@/hooks/useCatalog';
 
 const STATUS_STYLES: Record<string, string> = {
-  EN_SITIO: 'bg-amber-100 text-amber-950 border-amber-300',
-  EN_TRANSITO: 'bg-blue-100 text-blue-950 border-blue-300',
-  RESGUARDADO: 'bg-green-100 text-green-950 border-green-300',
-  ENTREGADO_AUTORIDAD: 'bg-violet-100 text-violet-950 border-violet-300',
+  EN_SITIO:
+    'bg-status-site-bg text-status-site-text border-status-site-border',
+  EN_TRANSITO:
+    'bg-status-transit-bg text-status-transit-text border-status-transit-border',
+  RESGUARDADO:
+    'bg-status-sheltered-bg text-status-sheltered-text border-status-sheltered-border',
+  ENTREGADO_AUTORIDAD:
+    'bg-status-delivered-bg text-status-delivered-text border-status-delivered-border',
 };
 
-const FALLBACK_STYLE = 'bg-slate-100 text-slate-800 border-slate-300';
+const FALLBACK_STYLE =
+  'bg-status-fallback-bg text-status-fallback-text border-status-fallback-border';
 
 interface StatusBadgeProps {
   statusCode: string;

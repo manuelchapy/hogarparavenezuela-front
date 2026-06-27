@@ -1,12 +1,10 @@
 import { useCallback, useEffect } from 'react';
-import { useOnlineStatus } from '@/hooks/useOnlineStatus';
-import { useApiHealth } from '@/hooks/useApiHealth';
+import { useNetwork } from '@/hooks/useNetwork';
 import { useSyncStore } from '@/store/syncStore';
 import { useCatalogStore } from '@/store/catalogStore';
 
 export const useSync = () => {
-  const isOnline = useOnlineStatus();
-  const { apiReachable, ping } = useApiHealth();
+  const { isOnline, apiReachable, ping } = useNetwork();
   const pendingCount = useSyncStore((s) => s.pendingCount);
   const isSyncing = useSyncStore((s) => s.isSyncing);
   const lastSyncAt = useSyncStore((s) => s.lastSyncAt);

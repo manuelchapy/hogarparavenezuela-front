@@ -1,9 +1,10 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { NnaRecord } from '@/api/nnaTypes';
 import {
-  timelineEventSchema,
+  createTimelineEventSchema,
   type TimelineEventForm,
 } from '@/modules/nna/schemas/nnaSchemas';
 import { addTimelineEvent } from '@/services/nnaService';
@@ -13,12 +14,13 @@ export const useNnaTimeline = (
   nnaId: string,
   onSuccess: (nna: NnaRecord) => void,
 ) => {
+  const { t } = useTranslation();
   const refreshPendingCount = useSyncStore((s) => s.refreshPendingCount);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [offlineQueued, setOfflineQueued] = useState(false);
 
   const form = useForm<TimelineEventForm>({
-    resolver: zodResolver(timelineEventSchema),
+    resolver: zodResolver(createTimelineEventSchema()),
     defaultValues: {
       tipoEvent: 'ATENCION_MEDICA',
       ubicacionNombre: '',
@@ -58,10 +60,12 @@ export const useNnaTimeline = (
 
       const { appendTimelineEvent } = await import('@/api/nnaApi');
       const result = await appendTimelineEvent(nnaId, evento);
+      const { upsertNnaRecord } = await import('@/services/nnaCacheService');
+      await upsertNnaRecord(result.nna);
       onSuccess(result.nna);
       form.reset();
     } catch {
-      setSubmitError('No se pudo registrar el hito');
+      setSubmitError(t('nna.timelineSubmitError'));
     }
   });
 

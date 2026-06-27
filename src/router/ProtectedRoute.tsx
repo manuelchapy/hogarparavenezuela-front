@@ -1,4 +1,5 @@
 import { Navigate, Outlet } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
 import { ROUTES } from '@/constants/routes';
 import type { UserRole } from '@/constants/roles';
@@ -12,12 +13,15 @@ export const ProtectedRoute = ({
   allowedRoles,
   requireActiveAccount = true,
 }: ProtectedRouteProps) => {
+  const { t } = useTranslation();
   const { isAuthenticated, isHydrating, user, canOperate } = useAuth();
 
   if (isHydrating) {
     return (
-      <div className="flex flex-1 items-center justify-center p-8">
-        <p className="text-base text-text-secondary">Verificando sesión...</p>
+      <div className="flex min-h-0 flex-1 items-center justify-center p-8">
+        <p className="text-base text-text-secondary">
+          {t('auth.verifyingSession')}
+        </p>
       </div>
     );
   }

@@ -13,7 +13,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
       <div className="flex w-full flex-col gap-1.5">
         <label
           htmlFor={textareaId}
-          className="text-base font-medium text-text-primary"
+          className="text-base font-semibold text-text-primary"
         >
           {label}
         </label>
@@ -21,10 +21,8 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           ref={ref}
           id={textareaId}
           className={[
-            'min-h-24 w-full rounded-xl border-2 border-slate-300 bg-white px-4 py-3',
-            'text-base text-text-primary placeholder:text-slate-400',
-            'focus:border-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-100',
-            error ? 'border-danger-500' : '',
+            'form-field min-h-24 resize-y',
+            error ? 'border-danger-500 focus:border-danger-500 focus:ring-red-100' : '',
             className,
           ].join(' ')}
           {...props}

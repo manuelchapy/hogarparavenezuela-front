@@ -1,9 +1,18 @@
 import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { PageFrame } from '@/components/layout/PageFrame';
+import { PageHeader } from '@/components/layout/PageHeader';
+import {
+  DesktopActionBar,
+  MobileBottomNavSpacer,
+} from '@/components/layout/StickyActionBar';
+import { AccountStatusBadge } from '@/components/ui/AccountStatusBadge';
+import { AlertBanner } from '@/components/ui/AlertBanner';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { SurfaceCard } from '@/components/ui/SurfaceCard';
 import { UbicacionSelector } from '@/components/ui/UbicacionSelector';
 import { ROUTES } from '@/constants/routes';
 import { useAuth } from '@/hooks/useAuth';
@@ -14,7 +23,8 @@ import {
 import { getAuthErrorMessage, updateUserProfile } from '@/services/authService';
 
 export const ProfilePage = () => {
-  const { user, setUser } = useAuth();
+  const { t } = useTranslation();
+  const { user, setUser, clearAuth } = useAuth();
 
   const {
     register,
@@ -76,68 +86,112 @@ export const ProfilePage = () => {
       : null;
 
   return (
-    <div className="flex flex-1 flex-col">
-      <header className="border-b border-slate-200 bg-white px-4 py-5">
-        <Link to={ROUTES.DASHBOARD} className="text-sm font-medium text-primary-700">
-          ← Inicio
-        </Link>
-        <h1 className="mt-2 text-xl font-bold text-text-primary">Mi perfil</h1>
-        <p className="mt-1 text-base text-text-secondary">{user.cedula}</p>
-      </header>
+    <PageFrame
+      header={
+        <PageHeader
+          backTo={ROUTES.DASHBOARD}
+          backLabel={t('auth.backToDashboard')}
+          title={t('auth.profileTitle')}
+          subtitle={user.cedula}
+        />
+      }
+      scrollClassName="page-section"
+    >
+      <form onSubmit={onSubmit} className="flex flex-col gap-4" noValidate>
+        <SurfaceCard>
+          <dl className="space-y-2 text-base">
+            <div>
+              <dt className="text-sm text-text-muted">{t('common.role')}</dt>
+              <dd className="font-semibold">{user.rol.replace(/_/g, ' ')}</dd>
+            </div>
+            <div>
+              <dt className="text-sm text-text-muted">{t('common.status')}</dt>
+              <dd className="mt-1">
+                <AccountStatusBadge statusCode={user.estadoCuenta} />
+              </dd>
+            </div>
+            {user.institucion && (
+              <div>
+                <dt className="text-sm text-text-muted">
+                  {t('auth.institutionCatalogLabel')}
+                </dt>
+                <dd className="font-semibold">{user.institucion}</dd>
+              </div>
+            )}
+            {ubicacionDisplay && (
+              <div>
+                <dt className="text-sm text-text-muted">{t('auth.currentLocation')}</dt>
+                <dd className="font-semibold">{ubicacionDisplay}</dd>
+              </div>
+            )}
+          </dl>
+        </SurfaceCard>
 
-      <form onSubmit={onSubmit} className="flex flex-1 flex-col gap-4 overflow-y-auto p-4">
-        <div className="rounded-2xl bg-slate-100 p-4 text-base">
-          <p>
-            <span className="font-medium">Rol:</span> {user.rol.replace(/_/g, ' ')}
-          </p>
-          <p className="mt-1">
-            <span className="font-medium">Estado:</span> {user.estadoCuenta}
-          </p>
-          {user.institucion && (
-            <p className="mt-1">
-              <span className="font-medium">Institución:</span> {user.institucion}
-            </p>
-          )}
-          {ubicacionDisplay && (
-            <p className="mt-1">
-              <span className="font-medium">Ubicación:</span> {ubicacionDisplay}
-            </p>
-          )}
+        <SurfaceCard title={t('auth.profileSubtitle')}>
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-6">
+            <Input
+              label={t('auth.fullNameLabel')}
+              {...register('nombreCompleto')}
+              error={errors.nombreCompleto?.message}
+            />
+            <Input
+              label={t('auth.phoneLabel')}
+              {...register('telefono')}
+              error={errors.telefono?.message}
+            />
+          </div>
+
+          <Controller
+            name="ubicacion"
+            control={control}
+            render={({ field }) => (
+              <UbicacionSelector
+                value={field.value}
+                onChange={field.onChange}
+                includeMunicipalityParish={false}
+              />
+            )}
+          />
+        </SurfaceCard>
+
+        {errors.root && <AlertBanner tone="error">{errors.root.message}</AlertBanner>}
+
+        <div className="mt-2 flex flex-col gap-2 lg:hidden">
+          <Button
+            type="submit"
+            className="w-full"
+            variant="accent"
+            isLoading={isSubmitting}
+          >
+            {t('auth.saveProfile')}
+          </Button>
         </div>
 
-        <Input
-          label="Nombre completo"
-          {...register('nombreCompleto')}
-          error={errors.nombreCompleto?.message}
-        />
-        <Input
-          label="Teléfono"
-          {...register('telefono')}
-          error={errors.telefono?.message}
-        />
-
-        <Controller
-          name="ubicacion"
-          control={control}
-          render={({ field }) => (
-            <UbicacionSelector
-              value={field.value}
-              onChange={field.onChange}
-              includeMunicipalityParish={false}
-            />
-          )}
-        />
-
-        {errors.root && (
-          <p className="text-sm text-danger-500">{errors.root.message}</p>
-        )}
+        <DesktopActionBar>
+          <Button
+            type="submit"
+            className="w-full lg:w-auto lg:min-w-[12rem]"
+            variant="accent"
+            isLoading={isSubmitting}
+          >
+            {t('auth.saveProfile')}
+          </Button>
+        </DesktopActionBar>
       </form>
 
-      <div className="sticky bottom-0 border-t border-slate-200 bg-white p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
-        <Button type="button" className="w-full" isLoading={isSubmitting} onClick={onSubmit}>
-          Guardar cambios
+      <SurfaceCard title={t('auth.sessionSection')}>
+        <p className="mb-4 text-sm text-text-muted">{t('auth.logoutHint')}</p>
+        <Button
+          type="button"
+          variant="danger"
+          className="w-full lg:w-auto lg:min-w-[12rem]"
+          onClick={clearAuth}
+        >
+          {t('common.logout')}
         </Button>
-      </div>
-    </div>
+      </SurfaceCard>
+
+      <MobileBottomNavSpacer />
+    </PageFrame>
   );
 };

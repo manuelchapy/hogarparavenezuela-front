@@ -1,173 +1,116 @@
-import { useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { PageFrame } from '@/components/layout/PageFrame';
+import { PageHeader } from '@/components/layout/PageHeader';
+import { ResponsiveActionBar } from '@/components/layout/StickyActionBar';
+import { AlertBanner } from '@/components/ui/AlertBanner';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import {
-  cierreLegalFormSchema,
-  type CierreLegalForm,
-} from '@/modules/nna/schemas/nnaSchemas';
-import { submitCierreLegal, uploadNnaArchivo } from '@/api/nnaApi';
-import { compressImage } from '@/services/imageCompression';
+import { SurfaceCard } from '@/components/ui/SurfaceCard';
 import { LopnnaLegalNotice } from '@/components/ui/LopnnaLegalNotice';
 import { ROUTES } from '@/constants/routes';
+import { useLegalClosure } from '@/hooks/useLegalClosure';
 
 export const LegalClosurePage = () => {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const [submitError, setSubmitError] = useState<string | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
-
   const {
-    register,
-    handleSubmit,
-    setValue,
-    formState: { errors, isSubmitting },
-  } = useForm<CierreLegalForm>({
-    resolver: zodResolver(cierreLegalFormSchema),
-    defaultValues: {
-      codigoActaEntrega: '',
-      autoridadNombre: '',
-      autoridadCredencial: '',
-      scannedActaUrl: '',
-      notificadoAlCpnna: true,
-      archivadoPorRescatista: false,
-    },
-  });
+    form,
+    submitError,
+    isUploading,
+    handleActaUpload,
+    onSubmit,
+    isSubmitting,
+  } = useLegalClosure(id);
 
-  const handleActaUpload = async (file: File | undefined) => {
-    if (!file || !id) return;
-
-    setIsUploading(true);
-    setSubmitError(null);
-    try {
-      const compressed = await compressImage(file);
-      const { url } = await uploadNnaArchivo(id, compressed.file, 'ACTA_ENTREGA');
-      setValue('scannedActaUrl', url, { shouldValidate: true });
-    } catch {
-      setSubmitError('No se pudo subir el acta escaneada');
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  const onSubmit = handleSubmit(async (data) => {
-    if (!id) return;
-
-    setSubmitError(null);
-    try {
-      const result = await submitCierreLegal(id, {
-        eventoId: crypto.randomUUID(),
-        codigoActaEntrega: data.codigoActaEntrega,
-        autoridadReceptora: {
-          nombre: data.autoridadNombre,
-          credencial: data.autoridadCredencial,
-        },
-        scannedActaUrl: data.scannedActaUrl,
-        notificadoAlCpnna: data.notificadoAlCpnna,
-        archivadoPorRescatista: data.archivadoPorRescatista,
-      });
-
-      navigate(ROUTES.NNA_DETAIL.replace(':id', result.nna._id), {
-        state: {
-          message: result.duplicated
-            ? 'Cierre legal ya registrado'
-            : 'Cierre legal completado',
-        },
-      });
-    } catch {
-      setSubmitError('No se pudo registrar el cierre legal');
-    }
-  });
+  const { register, formState: { errors } } = form;
 
   return (
-    <div className="flex flex-1 flex-col">
-      <header className="border-b border-slate-200 bg-white px-4 py-5">
-        <Link
-          to={id ? ROUTES.NNA_DETAIL.replace(':id', id) : ROUTES.NNA_LIST}
-          className="text-sm font-medium text-primary-700"
-        >
-          ← Volver a la ficha
-        </Link>
-        <h1 className="mt-2 text-xl font-bold text-text-primary">Cierre Legal</h1>
-        <p className="mt-1 text-base text-text-secondary">
-          Solo Consejeros CPNNA y Administradores
-        </p>
-      </header>
-
-      <form
-        onSubmit={onSubmit}
-        className="flex flex-1 flex-col gap-4 overflow-y-auto p-4"
-        noValidate
-      >
+    <PageFrame
+      header={
+        <PageHeader
+          backTo={id ? ROUTES.NNA_DETAIL.replace(':id', id) : ROUTES.NNA_LIST}
+          backLabel={t('nna.backToRecord')}
+          title={t('legalClosure.title')}
+          subtitle={t('legalClosure.subtitle')}
+        />
+      }
+      scrollClassName="page-section"
+    >
+      <form onSubmit={onSubmit} className="flex flex-col gap-4" noValidate>
         <LopnnaLegalNotice variant="legalClosure" />
 
-        <Input
-          label="Código del acta de entrega *"
-          {...register('codigoActaEntrega')}
-          error={errors.codigoActaEntrega?.message}
-        />
-        <Input
-          label="Nombre de la autoridad receptora *"
-          {...register('autoridadNombre')}
-          error={errors.autoridadNombre?.message}
-        />
-        <Input
-          label="Credencial de la autoridad *"
-          {...register('autoridadCredencial')}
-          error={errors.autoridadCredencial?.message}
-        />
+        <SurfaceCard>
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-6">
+            <Input
+              label={t('legalClosure.actaCode')}
+              {...register('codigoActaEntrega')}
+              error={errors.codigoActaEntrega?.message}
+            />
+            <Input
+              label={t('legalClosure.authorityName')}
+              {...register('autoridadNombre')}
+              error={errors.autoridadNombre?.message}
+            />
+            <Input
+              label={t('legalClosure.authorityCredential')}
+              className="lg:col-span-2"
+              {...register('autoridadCredencial')}
+              error={errors.autoridadCredencial?.message}
+            />
+          </div>
 
-        <div className="flex flex-col gap-2">
-          <span className="text-base font-medium text-text-primary">
-            Acta escaneada *
-          </span>
-          <input
-            type="file"
-            accept="image/*,application/pdf"
-            disabled={isUploading}
-            className="text-base"
-            onChange={(e) => void handleActaUpload(e.target.files?.[0])}
-          />
-          <input type="hidden" {...register('scannedActaUrl')} />
-          {errors.scannedActaUrl && (
-            <p className="text-sm text-danger-500">
-              {errors.scannedActaUrl.message}
-            </p>
-          )}
-        </div>
+          <div className="mt-4 flex flex-col gap-2">
+            <span className="text-base font-semibold text-text-primary">
+              {t('legalClosure.scannedActa')}
+            </span>
+            <input
+              type="file"
+              accept="image/*,application/pdf"
+              disabled={isUploading}
+              className="form-field !min-h-12 file:mr-3 file:rounded-lg file:border-0 file:bg-primary-100 file:px-3 file:py-2 file:font-semibold file:text-primary-800"
+              onChange={(e) => void handleActaUpload(e.target.files?.[0])}
+            />
+            <input type="hidden" {...register('scannedActaUrl')} />
+            {errors.scannedActaUrl && (
+              <p className="text-sm text-danger-500">
+                {errors.scannedActaUrl.message}
+              </p>
+            )}
+          </div>
 
-        <label className="flex min-h-12 items-center gap-3 text-base">
-          <input type="checkbox" className="h-5 w-5" {...register('notificadoAlCpnna')} />
-          Notificado al CPNNA
-        </label>
-        <label className="flex min-h-12 items-center gap-3 text-base">
-          <input
-            type="checkbox"
-            className="h-5 w-5"
-            {...register('archivadoPorRescatista')}
-          />
-          Archivado por rescatista
-        </label>
+          <label className="mt-4 flex min-h-12 items-center gap-3 text-base font-medium">
+            <input
+              type="checkbox"
+              className="h-5 w-5 accent-primary-600"
+              {...register('notificadoAlCpnna')}
+            />
+            {t('legalClosure.notifiedCpnna')}
+          </label>
+          <label className="flex min-h-12 items-center gap-3 text-base font-medium">
+            <input
+              type="checkbox"
+              className="h-5 w-5 accent-primary-600"
+              {...register('archivadoPorRescatista')}
+            />
+            {t('legalClosure.archivedByRescuer')}
+          </label>
+        </SurfaceCard>
 
-        {submitError && (
-          <p className="text-sm font-medium text-danger-500" role="alert">
-            {submitError}
-          </p>
-        )}
+        {submitError && <AlertBanner tone="error">{submitError}</AlertBanner>}
+
+        <ResponsiveActionBar>
+          <Button
+            type="button"
+            className="w-full lg:w-auto lg:min-w-[12rem]"
+            variant="accent"
+            isLoading={isSubmitting || isUploading}
+            onClick={onSubmit}
+          >
+            {t('legalClosure.submit')}
+          </Button>
+        </ResponsiveActionBar>
       </form>
-
-      <div className="sticky bottom-0 border-t border-slate-200 bg-white p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
-        <Button
-          type="button"
-          className="w-full"
-          isLoading={isSubmitting || isUploading}
-          onClick={onSubmit}
-        >
-          Registrar cierre legal
-        </Button>
-      </div>
-    </div>
+    </PageFrame>
   );
 };

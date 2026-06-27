@@ -1,0 +1,101 @@
+/**
+ * Tailwind v4 @theme — keep hex values in sync with src/theme/tokens.ts
+ */
+@theme {
+  --color-primary-50: #eef4ff;
+  --color-primary-100: #dce8ff;
+  --color-primary-200: #b9cff5;
+  --color-primary-500: #2563eb;
+  --color-primary-600: #1d4ed8;
+  --color-primary-700: #1e40af;
+  --color-primary-800: #172554;
+  --color-primary-900: #0f172a;
+
+  --color-accent-100: #fef3c7;
+  --color-accent-400: #fbbf24;
+  --color-accent-500: #f59e0b;
+  --color-accent-600: #d97706;
+  --color-accent-700: #b45309;
+
+  --color-success-500: #059669;
+  --color-warning-500: #d97706;
+  --color-danger-500: #dc2626;
+
+  --color-surface: #f1f5f9;
+  --color-surface-elevated: #ffffff;
+  --color-surface-muted: #e2e8f0;
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #475569;
+  --color-text-muted: #64748b;
+  --color-text-on-primary: #ffffff;
+  --color-text-on-accent: #451a03;
+
+  --color-border-default: #cbd5e1;
+  --color-border-subtle: #e2e8f0;
+  --color-border-focus: #2563eb;
+
+  --color-status-site-bg: #fef3c7;
+  --color-status-site-text: #451a03;
+  --color-status-site-border: #d97706;
+
+  --color-status-transit-bg: #dbeafe;
+  --color-status-transit-text: #1e3a8a;
+  --color-status-transit-border: #2563eb;
+
+  --color-status-sheltered-bg: #d1fae5;
+  --color-status-sheltered-text: #064e3b;
+  --color-status-sheltered-border: #059669;
+
+  --color-status-delivered-bg: #ede9fe;
+  --color-status-delivered-text: #3b0764;
+  --color-status-delivered-border: #7c3aed;
+
+  --color-status-fallback-bg: #f8fafc;
+  --color-status-fallback-text: #0f172a;
+  --color-status-fallback-border: #cbd5e1;
+
+  --color-feedback-success-bg: #d1fae5;
+  --color-feedback-success-text: #064e3b;
+  --color-feedback-success-border: #059669;
+
+  --color-feedback-warning-bg: #fef3c7;
+  --color-feedback-warning-text: #451a03;
+  --color-feedback-warning-border: #d97706;
+
+  --color-feedback-error-bg: #fee2e2;
+  --color-feedback-error-text: #7f1d1d;
+  --color-feedback-error-border: #dc2626;
+
+  --color-feedback-info-bg: #dbeafe;
+  --color-feedback-info-text: #1e3a8a;
+  --color-feedback-info-border: #2563eb;
+
+  --color-network-online-bg: #d1fae5;
+  --color-network-online-text: #064e3b;
+  --color-network-online-dot: #059669;
+
+  --color-network-offline-bg: #fef3c7;
+  --color-network-offline-text: #451a03;
+  --color-network-offline-dot: #d97706;
+
+  --color-account-pending-bg: #fef3c7;
+  --color-account-pending-text: #451a03;
+  --color-account-pending-border: #d97706;
+
+  --color-account-active-bg: #d1fae5;
+  --color-account-active-text: #064e3b;
+  --color-account-active-border: #059669;
+
+  --color-account-suspended-bg: #fee2e2;
+  --color-account-suspended-text: #7f1d1d;
+  --color-account-suspended-border: #dc2626;
+
+  --color-account-rejected-bg: #f1f5f9;
+  --color-account-rejected-text: #0f172a;
+  --color-account-rejected-border: #94a3b8;
+
+  --font-sans: 'Segoe UI', system-ui, -apple-system, sans-serif;
+
+  --shadow-card: 0 1px 3px rgb(15 23 42 / 0.08), 0 4px 12px rgb(15 23 42 / 0.06);
+  --shadow-elevated: 0 8px 24px rgb(15 23 42 / 0.12);
+}

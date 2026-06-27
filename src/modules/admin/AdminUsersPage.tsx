@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { PageFrame } from '@/components/layout/PageFrame';
+import { PageHeader } from '@/components/layout/PageHeader';
+import { AlertBanner } from '@/components/ui/AlertBanner';
 import { Button } from '@/components/ui/Button';
 import { Textarea } from '@/components/ui/Textarea';
 import { BottomSheet } from '@/components/ui/BottomSheet';
@@ -21,6 +24,7 @@ import {
 import { getAuthErrorMessage } from '@/services/authService';
 
 export const AdminUsersPage = () => {
+  const { t } = useTranslation();
   const { getItems } = useCatalog();
   const accountStatuses = getItems(CATALOG_KEYS.ACCOUNT_STATUS);
 
@@ -95,61 +99,54 @@ export const AdminUsersPage = () => {
     }
   });
 
+  const statusLabel =
+    accountStatuses.find((s) => s.code === statusFilter)?.label ?? statusFilter;
+
   const emptyMessage =
     statusFilter === ACCOUNT_STATUS.PENDIENTE
-      ? 'No hay solicitudes pendientes'
+      ? t('admin.emptyPending')
       : statusFilter
-        ? `No hay usuarios con estado «${accountStatuses.find((s) => s.code === statusFilter)?.label ?? statusFilter}»`
-        : 'No hay usuarios registrados';
+        ? t('admin.emptyByStatus', { status: statusLabel })
+        : t('admin.emptyDefault');
+
+  const filterBtnClass = (active: boolean) =>
+    [
+      'min-h-12 rounded-xl border-2 px-3 py-2 text-sm font-semibold transition-colors',
+      active
+        ? 'border-primary-700 bg-primary-700 text-text-on-primary shadow-[var(--shadow-card)]'
+        : 'border-border-default bg-surface-elevated text-text-primary hover:bg-surface',
+    ].join(' ');
 
   return (
-    <div className="flex flex-1 flex-col">
-      <header className="border-b border-slate-200 bg-white px-4 py-5">
-        <Link to={ROUTES.DASHBOARD} className="text-sm font-medium text-primary-700">
-          ← Inicio
-        </Link>
-        <h1 className="mt-2 text-xl font-bold text-text-primary">
-          Administración de usuarios
-        </h1>
-        <p className="mt-1 text-base text-text-secondary">
-          {total} usuario{total !== 1 ? 's' : ''}
-          {statusFilter
-            ? ` · ${accountStatuses.find((s) => s.code === statusFilter)?.label ?? statusFilter}`
-            : ' · Todos los estados'}
-        </p>
-      </header>
-
-      <section className="flex flex-1 flex-col gap-3 overflow-y-auto p-4">
+    <PageFrame
+      header={
+        <PageHeader
+          backTo={ROUTES.DASHBOARD}
+          backLabel={t('admin.backHome')}
+          title={t('admin.title')}
+          subtitle={`${t('admin.userCount', { count: total })}${statusFilter ? ` · ${statusLabel}` : ` · ${t('admin.allStatuses')}`}`}
+        />
+      }
+      scrollClassName="page-section"
+    >
         <div className="flex flex-col gap-2">
           <span className="text-base font-medium text-text-primary">
-            Estado de cuenta
+            {t('admin.accountStatusFilter')}
           </span>
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
               onClick={() => setStatusFilter('')}
-              className={[
-                'min-h-10 rounded-xl border-2 px-3 py-2 text-sm font-semibold transition-colors',
-                statusFilter === ''
-                  ? 'border-primary-700 bg-primary-700 text-white'
-                  : 'border-slate-300 bg-white text-text-primary',
-              ].join(' ')}
+              className={filterBtnClass(statusFilter === '')}
             >
-              Todos
+              {t('admin.allFilter')}
             </button>
             {accountStatuses.map((item) => (
               <button
                 key={item.code}
                 type="button"
-                onClick={() =>
-                  setStatusFilter(item.code as AccountStatus)
-                }
-                className={[
-                  'min-h-10 rounded-xl border-2 px-3 py-2 text-sm font-semibold transition-colors',
-                  statusFilter === item.code
-                    ? 'border-primary-700 bg-primary-700 text-white'
-                    : 'border-slate-300 bg-white text-text-primary',
-                ].join(' ')}
+                onClick={() => setStatusFilter(item.code as AccountStatus)}
+                className={filterBtnClass(statusFilter === item.code)}
               >
                 {item.label}
               </button>
@@ -159,33 +156,27 @@ export const AdminUsersPage = () => {
 
         <CatalogSelect
           catalogKey={CATALOG_KEYS.ROLES}
-          label="Filtrar por rol (opcional)"
+          label={t('admin.filterByRole')}
           value={rolFilter}
           onChange={(v) => setRolFilter(v as UserRole | '')}
           name="filter-rol"
-          placeholder="Todos los roles"
+          placeholder={t('admin.allRoles')}
         />
 
-        {error && (
-          <p className="text-sm font-medium text-danger-500" role="alert">
-            {error}
-          </p>
-        )}
+        {error && <AlertBanner tone="error">{error}</AlertBanner>}
 
         {isLoading && users.length === 0 ? (
-          <p className="py-8 text-center text-base text-text-secondary">
-            Cargando usuarios...
+          <p className="py-8 text-center text-base text-text-muted">
+            {t('admin.loadingUsers')}
           </p>
         ) : users.length === 0 ? (
-          <p className="py-8 text-center text-base text-text-secondary">
+          <p className="py-8 text-center text-base text-text-muted">
             {emptyMessage}
           </p>
         ) : (
-          users.map((user) => (
-            <article
-              key={user.id}
-              className="rounded-2xl border-2 border-slate-200 bg-white p-4"
-            >
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
+          {users.map((user) => (
+            <article key={user.id} className="surface-card !p-4">
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
                   <p className="text-lg font-bold text-text-primary">
@@ -205,8 +196,8 @@ export const AdminUsersPage = () => {
               )}
               {user.estadoCuenta === ACCOUNT_STATUS.RECHAZADO &&
                 user.motivoRechazo && (
-                  <p className="mt-2 rounded-lg bg-slate-100 px-3 py-2 text-sm text-text-secondary">
-                    <span className="font-medium">Motivo de rechazo:</span>{' '}
+                  <p className="mt-2 rounded-lg bg-surface px-3 py-2 text-sm text-text-secondary">
+                    <span className="font-medium">{t('admin.rejectReason')}</span>{' '}
                     {user.motivoRechazo}
                   </p>
                 )}
@@ -214,10 +205,11 @@ export const AdminUsersPage = () => {
                 <div className="mt-4 flex gap-2">
                   <Button
                     className="flex-1"
+                    variant="accent"
                     isLoading={actionLoading === user.id}
                     onClick={() => void handleApprove(user.id)}
                   >
-                    Aprobar
+                    {t('admin.approve')}
                   </Button>
                   <Button
                     variant="danger"
@@ -225,12 +217,13 @@ export const AdminUsersPage = () => {
                     disabled={Boolean(actionLoading)}
                     onClick={() => setRejectTarget(user)}
                   >
-                    Rechazar
+                    {t('admin.reject')}
                   </Button>
                 </div>
               )}
             </article>
-          ))
+          ))}
+          </div>
         )}
 
         {hasNextPage && (
@@ -240,32 +233,31 @@ export const AdminUsersPage = () => {
             isLoading={isLoading}
             onClick={() => void load(page + 1, true)}
           >
-            Cargar más
+            {t('common.loadMore')}
           </Button>
         )}
 
         <Button variant="ghost" onClick={() => void load(1, false)}>
-          Actualizar
+          {t('admin.refresh')}
         </Button>
-      </section>
 
       <BottomSheet
         isOpen={Boolean(rejectTarget)}
         onClose={() => setRejectTarget(null)}
-        title="Rechazar solicitud"
+        title={t('admin.rejectSheetTitle')}
       >
         <form onSubmit={submitReject} className="flex flex-col gap-4">
           <Textarea
-            label="Motivo del rechazo *"
+            label={t('admin.rejectReasonLabel')}
             rows={4}
             error={rejectForm.formState.errors.motivoRechazo?.message}
             {...rejectForm.register('motivoRechazo')}
           />
           <Button type="submit" variant="danger" isLoading={Boolean(actionLoading)}>
-            Confirmar rechazo
+            {t('admin.confirmReject')}
           </Button>
         </form>
       </BottomSheet>
-    </div>
+    </PageFrame>
   );
 };

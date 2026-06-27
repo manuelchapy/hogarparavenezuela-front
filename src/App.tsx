@@ -1,14 +1,10 @@
 import { AppRouter } from '@/router/AppRouter';
-import { CatalogBootstrap } from '@/components/CatalogBootstrap';
-import { GeoBootstrap } from '@/components/GeoBootstrap';
-import { AuthBootstrap } from '@/components/AuthBootstrap';
+import { AppBootstrap } from '@/components/bootstrap/AppBootstrap';
 
 export const App = () => {
   return (
     <>
-      <AuthBootstrap />
-      <CatalogBootstrap />
-      <GeoBootstrap />
+      <AppBootstrap />
       <AppRouter />
     </>
   );

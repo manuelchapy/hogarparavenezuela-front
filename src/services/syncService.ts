@@ -1,5 +1,5 @@
 import { apiClient } from '@/api/client';
-import type { PendingMutation, PendingMutationType } from '@/api/types';
+import type { PendingMutation, PendingMutationType } from '@/services/syncTypes';
 import { API_ENDPOINTS } from '@/constants/routes';
 import { processPendingNnaCreates } from '@/services/nnaService';
 import { db } from '@/services/db';

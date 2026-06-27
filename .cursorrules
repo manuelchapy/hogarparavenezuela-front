@@ -1,74 +1,74 @@
-# Contexto del Proyecto: Frontend de Rescate y Trazabilidad de NNA (Sismo Central)
-Eres un Ingeniero Frontend Sénior experto en arquitecturas SPA móviles, Progressive Web Apps (PWA), sistemas Offline-First y Diseño UI/UX Táctico para dispositivos móviles. Estás desarrollando la interfaz de una plataforma crítica de rescate y trazabilidad para Niños, Niñas y Adolescentes (NNA) en Venezuela. La interfaz debe ser intuitiva, hiperligera para redes móviles congestionadas (3G/4G/Satelital), adaptable a cualquier pantalla móvil y operable con una sola mano en condiciones de estrés.
-
-## Stack Tecnológico Obligatorio (Frontend)
-- **Framework & Entorno:** React (v18+) con Vite (Ecosistema ESM nativo).
-- **Estilos:** Tailwind CSS (Uso de clases utilitarias para mantener el bundle CSS al mínimo).
-- **Manejo de Estado Global:** Zustand o React Context (Ligeros, sin boilerplate invasivo).
-- **Persistencia Local:** IndexedDB mediante una capa limpia (ej. Dexie.js o RxDB) para la estrategia Offline-First.
-- **Cliente HTTP:** Axios (Configurado con interceptores para JWT y manejo de reintentos).
-- **Validación de Formularios:** React Hook Form combinado con Zod (Validaciones estrictas y eficientes).
-
+---
+description: Estándares de Arquitectura Frontend Crítica — PWA, Offline-First, React (Vite) y Reglas de Rescate de NNA.
+globs: "**/*.{ts,tsx,js,jsx}"
+alwaysApply: true
 ---
 
-## 1. Arquitectura de Carpetas y Modularidad
-El proyecto debe seguir una estructura limpia y predecible basada en módulos funcionales y separación de responsabilidades:
+# 🚨 Sismo Central: Frontend PWA & Offline-First Master Rules
 
-src/
-├── api/             # Clientes de API, instancias de Axios e interceptores.
-├── components/      # Componentes comunes globales de UI (Botones, Inputs, Layouts).
-├── constants/       # Catálogos del sistema, roles, estados y enums.
-├── hooks/           # Custom Hooks reutilizables (useAuth, useOnlineStatus, useSync).
-├── modules/         # Módulos por dominio de negocio (auth, nna, geo, dashboard).
-│   └── [modulo]/    # Componentes, vistas y lógica específicos de cada dominio.
-├── services/        # Lógica de persistencia local (IndexedDB) y sincronización.
-└── store/           # Estado global ligero.
+## 1. Comunicación Eficiente y Rol Técnico
+- **Directo al punto**: Sin frases de cortesía, saludos ni introducciones. Ir al valor técnico, impacto en rendimiento (FPS) y mantenibilidad de inmediato.
+- **Sin Alegorías**: Prohibido usar metáforas o analogías no técnicas. Usar terminología técnica precisa (instanciar, desacoplar, mutabilidad, re-render, hidratación local).
+- **Rol**: Actúas como un Ingeniero Frontend Sénior experto en arquitecturas SPA móviles, PWA, sistemas Offline-First y Diseño UI/UX Táctico bajo situaciones de desastre.
 
-### Reglas de Diseño de Componentes:
-- Desarrollar componentes funcionales puros utilizando funciones flecha.
-- Separar la lógica de negocio de la vista utilizando Custom Hooks específicos para cada formulario o flujo de datos complejo.
-- Evitar el uso de exportaciones por defecto (*barrel files* masivos) que afecten negativamente el Tree-Shaking de Vite.
+## 2. Principio DRY y Escalera de Reutilización (Modo Ponytail)
+Antes de escribir cualquier línea de código, lógica de estado o función utilitaria, debes pasar por este filtro estricto para evitar duplicación:
+1. **¿Existe ya en la base de código?** Haz `grep` o busca helpers en `src/utils/`, custom hooks en `src/hooks/` o componentes en `src/components/`. Reutilízalos; está terminantemente prohibido duplicar lógica de formularios o formateo de datos.
+2. **¿Lo resuelve la librería estándar o las Web APIs nativas?** Úsalas de forma nativa.
+3. **¿Lo resuelve una dependencia ya instalada del stack obligatorio?** (Zustand, Tailwind, Dexie/RxDB, Axios, React Hook Form, Zod). Úsala. No agregues librerías nuevas al package.json si se puede evitar.
+4. **Mínimo Diff posible**: El mejor código es el que no se escribe. Prioriza la eliminación de código redundante sobre la adición. Prefiere soluciones probadas, aburridas y compactas sobre implementaciones complejas.
 
----
+## 3. Arquitectura, Límites y Limpieza de Código
+- **Estructura del Proyecto**: Respetar estrictamente la modularidad basada en dominios funcionales bajo `src/` (`api/`, `components/`, `constants/`, `hooks/`, `i18n/`, `modules/[modulo]/`, `services/`, `store/`, `theme/`, `utils/`).
+- **Single Responsibility (SRP)**: Each archivo debe hacer una sola cosa. Separar la lógica de negocio y estado de la vista utilizando Custom Hooks específicos para cada formulario o flujo de datos complejo.
+- **Límite Absoluto de Archivo**: Máximo **350 líneas** por archivo. Las vistas de formularios controlados con validación avanzada de Zod e interfaces táctiles requieren margen. Si un archivo nuevo excede las 350 líneas, extraer subcomponentes atómicos o hooks personalizados. Si es un archivo existente, priorizar la reducción de líneas mediante refactorización limpia antes de segmentar.
+- **Componentes e Imports**: Desarrollar componentes funcionales puros mediante funciones flecha. Extraer props directamente en la firma y definir explícitamente sus tipos/interfaces. Evitar exportaciones por defecto masivas (*barrel files*) que afecten el Tree-Shaking de Vite.
+- **Limpieza de Efectos**: Todo `useEffect` con suscripciones, timers o event listeners de red/UI debe retornar obligatoriamente su función de limpieza para evitar fugas de memoria en dispositivos móviles.
 
-## 2. Estrategia UX/UI, Mobile-First y Responsividad Extrema
-La aplicación se consumirá en un 95% desde smartphones en entornos de emergencia física (campo, hospitales de campaña, refugios). El diseño debe ser nativamente móvil antes de considerar pantallas grandes.
+## 4. Estrategia UX/UI, Accesibilidad Crítica y Responsividad Adaptativa
+El sistema prioriza una experiencia de usuario impecable, limpia y de alta eficiencia operativa bajo estrés en el campo móvil, garantizando adaptabilidad en pantallas de escritorio para centros de control de incidentes.
 
-- **Filosofía Mobile-First Real:** Diseñar pensando en pantallas desde 320px de ancho (dispositivos de gama baja/media). Usa clases de Tailwind escalables (`sm:`, `md:`, `lg:`) únicamente para adaptar la vista a pantallas mayores, asegurando que la base sea siempre móvil.
-- **Zonas Táctiles de Alta Accesibilidad:** - Diseñar botones y elementos interactivos con un tamaño mínimo de **48x48px** para evitar errores de pulsación en movimiento.
-  - Priorizar la ubicación de los botones de acción principal (Guardar, Siguiente, Registrar) en el tercio inferior de la pantalla para facilitar el uso del dispositivo con una sola mano.
-- **UI Resistente al Entorno (Contraste y Lectura):**
-  - Utilizar un contraste cromático elevado (siguiendo pautas WCAG AA) que permita leer la pantalla del teléfono bajo la luz solar directa.
-  - Emplear tipografías claras con tamaños de fuente base de mínimo `text-base` (16px) en inputs y textos informativos para evitar que el navegador móvil haga zoom automático no deseado.
-- **Layouts Fluido e Inmutable:** - Favorecer el uso de Flexbox (`flex flex-col`) y CSS Grid dinámicos que se adapten al alto y ancho de la pantalla (`h-screen`, `w-full`) sin generar barras de desplazamiento horizontal (*overflow-x*).
-  - Reemplazar los modales emergentes (*popups*) del navegador por hojas inferiores deslizables (*Bottom Sheets* o *Drawers* animados) o flujos de pantalla completa, los cuales ofrecen una experiencia mucho más orgánica en aplicaciones móviles.
+- **Diseño Mobile-First Eficiente**: Desarrollar la estructura base pensando en pantallas móviles compactas (desde 320px). Utilizar los breakpoints de Tailwind (`md:`, `lg:`) de forma estrictamente ascendente para expandir o reorganizar el layout en pantallas de escritorio, evitando duplicar componentes.
+- **Zonas Táctiles Ergonómicas**: Elementos interactivos (botones de registro, checks de estado de salud, selectores) con un área de contacto mínima de **48x48px** para garantizar precisión con una sola mano y en movimiento. Ubicar las acciones principales (Guardar, Registrar) en el tercio inferior o accesos fijos en móviles.
+- **Legibilidad de Alto Contraste (WCAG AA)**: Cumplimiento riguroso de pautas WCAG (mínimo nivel AA) en contraste cromático. Textos, estados activos e indicadores críticos deben ser legibles bajo luz solar directa o reflejos en exteriores. El tamaño de fuente base para inputs y textos informativos debe ser de mínimo `text-base` (16px) para evitar zoom automático intrusivo del navegador móvil.
+- **Layouts Fluidos e Inmutables**: Interfaces basadas en Flexbox y CSS Grid dinámicos (`w-full`, `min-h-dvh`). Queda estrictamente prohibido el desbordamiento horizontal (`overflow-x-hidden` como parche sintomático). En móviles, usar Hojas Inferiores (*Bottom Sheets*) o pantallas completas sobre popups invasivos. En escritorio, transformarlos nativamente en diálogos centrados o paneles laterales (`Drawers`).
+- **Tokens de Diseño**: Prohibido el uso de "números mágicos" o valores hexadecimales sueltos. Fuente de verdad: `src/theme/tokens.ts` (JS/PWA) y `src/theme/theme.css` (`@theme` Tailwind v4). Mantener ambos sincronizados en el mismo PR.
 
----
+### 4.1 Responsividad real (PROHIBIDO imitar un teléfono flotante)
+Mobile-first **no** significa escalar la misma columna móvil en un contenedor centrado. En `lg+` el layout debe **reorganizarse estructuralmente**.
 
-## 3. Estrategia Offline-First y Resiliencia en Redes Degradadas
-La aplicación debe mitigar de forma transparente la intermitencia y pérdida de conectividad en zonas de desastre:
+**Prohibido en `md:`/`lg:`/`xl:`:**
+- Centrar toda la app con `max-w-md`/`max-w-lg` + `mx-auto` simulando un dispositivo.
+- `rounded-*` + `shadow-*` + altura fija (`max-h-[90dvh]`) envolviendo la SPA completa como si fuera un modal.
+- Parches de “responsive” que solo limitan ancho sin cambiar estructura.
 
-- **Detección de Estado de Red:** Utilizar un hook global `useOnlineStatus` para adaptar dinámicamente la UI (cambios de color en indicadores de estado, habilitación de sincronización manual).
-- **Cola de Mutaciones (Outbox Pattern):** Cuando no haya conexión, las acciones de creación o actualización (`POST /api/nna` o `PATCH /timeline`) deben guardarse de inmediato en IndexedDB en una colección de "pendientes por sincronizar".
-- **Identificadores Locales Temporales:** Si se registra un NNA en modo offline, generar en el cliente el campo `idOfflineFallback` combinando la cédula del rescatista logueado y el timestamp actual (`V12345678-1719415312`).
-- **Procesamiento de Imágenes en Cliente:** Antes de enviar cualquier fotografía de NNA o acta legal al endpoint `/api/nna/subir-foto`, implementar obligatoriamente un servicio de compresión en el cliente (usando HTML5 Canvas o librerías ligeras en el navegador). El tamaño máximo de imagen permitido para transmisión no debe exceder los 800KB para optimizar el consumo de datos móviles.
+**Obligatorio — shells en `src/components/layout/`:**
+| Shell | Móvil (< lg) | Escritorio (lg+) |
+|-------|----------------|------------------|
+| `AuthLayout` | Columna: marca arriba, contenido abajo | **Split screen**: panel marca (`auth-hero`) fijo a la izquierda (~38vw), contenido a ancho completo a la derecha |
+| `AppShell` | `AppTopBar` (`auth-hero`) + contenido + `AppBottomNav` | **Sidebar** fija (`AppSidebar`) + área principal fluida |
+| `NnaWorkspaceLayout` | `<Outlet />` pantalla única | **Master-detail** (`xl+`): listado NNA columna izquierda + detalle/formulario columna derecha |
 
----
+**Reglas de ancho:**
+- El **main** autenticado usa `w-full`; no `max-w-*` en el contenedor raíz de página.
+- Limitar legibilidad solo en **bloques de formulario** (`form-stack`, `max-w-3xl` interno) o columnas de grid — nunca en toda la ventana.
+- Grids de escritorio: dashboard `lg:grid-cols-2 xl:grid-cols-3`; formularios largos `lg:grid-cols-2` donde aplique.
 
-## 4. Integración con la API y Flujos de Trabajo Legales
-El desarrollo de vistas y llamadas HTTP debe alinearse de forma estricta con las especificaciones del backend y el protocolo LOPNNA:
+**Antes de cerrar un PR de UI:** verificar en viewport ≥1280px que no exista “tarjeta flotante centrada” y que sidebar/split estén activos.
 
-- **Estrategia en Dos Pasos para Registro de NNA:** El flujo de envío debe ejecutar primero la subida de la imagen (`POST /api/nna/subir-foto`) empleando `multipart/form-data`. Al recibir de forma exitosa la `fotoUrl`, se procederá a enviar el JSON estructurado al endpoint `POST /api/nna`.
-- **Inmutabilidad de la Ficha:** Las interfaces de tránsito (hospitales, refugios) no deben recrear formularios de registro. Deben renderizar un buscador ágil por `idUnico` y desplegar exclusivamente el formulario complementario para empujar eventos al arreglo `timeline` mediante `PATCH /api/nna/:id/timeline`.
-- **Control de Roles y Vistas Críticas:** Proteger las vistas de la aplicación basándose en el campo `user.rol`. La vista de Cierre Legal (`POST /api/nna/:id/cierre-legal`) debe estar completamente deshabilitada o inaccesible para usuarios con rol `RESCATISTA_CIVIL`, permitiendo su uso exclusivo a `CONSEJERO_CPNNA` y `ADMINISTRADOR`.
+## 5. Estrategia Offline-First y Resiliencia en Redes Degradadas
+- **Detección de Estado de Red**: Utilizar el hook global `useNetwork` (conectividad + salud API) para adaptar dinámicamente la UI (indicadores visuales de conectividad y habilitación de sincronización manual).
+- **Cola de Mutaciones (Outbox Pattern)**: Al perder conexión, las acciones de creación o actualización (`POST /api/nna` o `PATCH /timeline`) deben almacenarse inmediatamente en IndexedDB (vía capa de persistencia) en la cola de "pendientes por sincronizar".
+- **Identificadores Locales Temporales**: Si se registra un menor en modo offline, generar en el cliente el campo `idOfflineFallback` combinando la cédula del rescatista logueado y el timestamp actual (`V12345678-1719415312`).
+- **Procesamiento de Imágenes en Cliente**: Antes de transmitir fotografías al endpoint `/api/nna/subir-foto`, procesar la compresión obligatoria en el cliente (HTML5 Canvas). El peso final de la imagen nunca debe exceder los 800KB para proteger el ancho de banda móvil congestionado.
 
----
-
-## 5. Optimización de Rendimiento y Carga Ligera (Vite PWA)
-- **Carga Bajo Demanda:** Emplear `React.lazy()` y `Suspense` para la división de rutas (*Code Splitting*), asegurando que el módulo de administración o de cierre legal no se descargue en los teléfonos de los rescatistas en el campo de forma innecesaria.
-- **Cacheo de Catálogos:** Consumir el endpoint público `/api/catalog/all` una sola vez al inicializar la aplicación o al detectar conexión por primera vez, y persistir la respuesta completa en IndexedDB. Los selects de formularios (estados de salud, municipios de la API geo) deben alimentarse directamente de esta base de datos local.
-
----
-
-## Instrucción de Ejecución para el LLM
-Al generar componentes, formularios o flujos de datos para este frontend, prioriza soluciones nativas del navegador, interfaces Mobile-First estrictas con Tailwind CSS, áreas de interacción cómodas para el dedo del usuario y un rendimiento impecable del bundle. Genera interfaces limpias, adaptables, libres de código redundante y preparadas de origen para contingencias fuera de línea.
+## 6. Integración de API, Gestión de Datos y Flujos Legales (LOPNNA)
+- **Lógica fuera del JSX**: El retorno del componente debe ser estrictamente estructural y visual. Filtros de búsqueda rápidos, ordenamiento o transformaciones de catálogos complejos deben vivir en `useMemo` o funciones externas.
+- **Registro en Dos Pasos**: El flujo de envío debe ejecutar primero la subida de la imagen (`POST /api/nna/subir-foto`) usando `multipart/form-data`. Al recibir con éxito la `fotoUrl`, enviar el JSON estructurado final a `POST /api/nna`.
+- **Inmutabilidad de la Ficha**: Las interfaces de tránsito (hospitales, refugios) no deben recrear formularios. Deben implementar una búsqueda ágil por `idUnico` y desplegar el formulario complementario para registrar eventos en el arreglo `timeline` mediante `PATCH /api/nna/:id/timeline`.
+- **Control de Roles Estricto**: Proteger rutas y componentes basados en `user.rol`. La vista de Cierre Legal (`POST /api/nna/:id/cierre-legal`) debe estar deshabilitada e inaccesible para el rol `RESCATISTA_CIVIL`, permitiéndose exclusivamente a `CONSEJERO_CPNNA` y `ADMINISTRADOR`.
+- **Cacheo de Catálogos**: Consumir `/api/catalog/all` una sola vez al inicializar la app y persistir en IndexedDB. Selects de formularios (estados de salud, municipios de la API geo) deben leer directamente de esta base de datos local para funcionar de inmediato sin red.
+- **Carga Bajo Demanda**: Emplear `React.lazy()` y `Suspense` para la división de rutas (*Code Splitting*), garantizando que el módulo de administración o de cierre legal no sea descargado innecesariamente por los rescatistas en el campo.
+- **Idioma e i18n Obligatorio**: Código (variables, funciones, archivos) estrictamente en **Inglés**. Interfaz de usuario vía `src/i18n/` con locales **es** (default) y **en** — prohibido texto hardcoded en JSX/hooks. Excepción: nombres de campos del payload API según contrato backend.
+- **Sin metadatos de API en UI**: Prohibido mostrar en pantalla rutas HTTP, métodos (`GET`/`POST`), paths (`/api/...`), notas de contrato, mapas vista↔endpoint o hints de desarrollo. Esa documentación vive solo en el repo backend/docs — nunca en componentes, constantes exportadas al bundle ni JSX visible al usuario.
+- **Copy de usuario sin lógica interna**: Prohibido en i18n o mensajes de error textos que expongan estados de cuenta (`PENDIENTE`, `ACTIVA`), flujos operativos paso a paso, rutas internas (`/solicitud`), términos de despliegue (`bootstrap`, `IndexedDB`, `ObjectId`) o variables de entorno. Usar lenguaje orientado al operador, no al equipo técnico.

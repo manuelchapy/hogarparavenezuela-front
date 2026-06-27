@@ -1,4 +1,5 @@
 import { useEffect, type ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface BottomSheetProps {
   isOpen: boolean;
@@ -13,6 +14,8 @@ export const BottomSheet = ({
   title,
   children,
 }: BottomSheetProps) => {
+  const { t } = useTranslation();
+
   useEffect(() => {
     if (!isOpen) return;
     document.body.style.overflow = 'hidden';
@@ -25,14 +28,18 @@ export const BottomSheet = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex flex-col justify-end bg-black/50"
+      className="fixed inset-0 z-50 flex flex-col justify-end bg-black/50 md:items-center md:justify-center md:p-4"
       role="dialog"
       aria-modal="true"
       aria-label={title}
       onClick={onClose}
     >
       <div
-        className="max-h-[85dvh] w-full animate-[slideUp_0.25s_ease-out] overflow-y-auto rounded-t-2xl bg-white p-4 pb-8 shadow-2xl"
+        className={[
+          'max-h-[85dvh] w-full overflow-y-auto bg-surface-elevated shadow-2xl',
+          'animate-[slideUp_0.25s_ease-out] rounded-t-2xl p-4 pb-8',
+          'md:max-h-[min(85dvh,640px)] md:max-w-lg md:animate-none md:rounded-2xl md:p-6',
+        ].join(' ')}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-4 flex items-center justify-between">
@@ -40,8 +47,8 @@ export const BottomSheet = ({
           <button
             type="button"
             onClick={onClose}
-            className="flex min-h-12 min-w-12 items-center justify-center rounded-full text-2xl text-slate-500"
-            aria-label="Cerrar"
+            className="flex min-h-12 min-w-12 items-center justify-center rounded-full text-2xl text-text-secondary"
+            aria-label={t('common.close')}
           >
             ×
           </button>

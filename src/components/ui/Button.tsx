@@ -1,6 +1,7 @@
+import { useTranslation } from 'react-i18next';
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 
-type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost';
+type ButtonVariant = 'primary' | 'secondary' | 'accent' | 'danger' | 'ghost';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
@@ -10,11 +11,14 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    'bg-primary-700 text-white hover:bg-primary-800 active:bg-primary-900',
+    'bg-primary-700 text-text-on-primary shadow-[var(--shadow-card)] hover:bg-primary-600 active:bg-primary-800',
+  accent:
+    'bg-accent-500 text-text-on-accent shadow-[var(--shadow-card)] hover:bg-accent-400 active:bg-accent-600',
   secondary:
-    'bg-white text-text-primary border-2 border-slate-300 hover:bg-slate-50',
-  danger: 'bg-danger-500 text-white hover:bg-red-700 active:bg-red-800',
-  ghost: 'bg-transparent text-primary-700 hover:bg-primary-50',
+    'bg-surface-elevated text-text-primary border-2 border-border-default hover:bg-surface active:bg-surface-muted',
+  danger:
+    'bg-danger-500 text-text-on-primary hover:bg-red-700 active:bg-red-800',
+  ghost: 'bg-transparent text-primary-700 hover:bg-primary-50 active:bg-primary-100',
 };
 
 export const Button = ({
@@ -25,6 +29,8 @@ export const Button = ({
   children,
   ...props
 }: ButtonProps) => {
+  const { t } = useTranslation();
+
   return (
     <button
       type="button"
@@ -39,7 +45,7 @@ export const Button = ({
       ].join(' ')}
       {...props}
     >
-      {isLoading ? 'Cargando...' : children}
+      {isLoading ? t('common.loading') : children}
     </button>
   );
 };

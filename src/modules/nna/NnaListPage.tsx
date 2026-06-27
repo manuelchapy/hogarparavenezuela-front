@@ -1,5 +1,10 @@
 import { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { PageFrame } from '@/components/layout/PageFrame';
+import { PageHeader } from '@/components/layout/PageHeader';
+import { ResponsiveActionBar } from '@/components/layout/StickyActionBar';
+import { AlertBanner } from '@/components/ui/AlertBanner';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { CatalogSelect } from '@/components/ui/CatalogSelect';
@@ -7,20 +12,21 @@ import { NnaCard } from '@/modules/nna/components/NnaCard';
 import { CATALOG_KEYS } from '@/constants/catalogKeys';
 import type { NnaStatus } from '@/api/nnaTypes';
 import { ROUTES } from '@/constants/routes';
-import { useAuth } from '@/hooks/useAuth';
 import { useNnaList } from '@/hooks/useNnaList';
 import { useNnaSearch } from '@/hooks/useNnaDetail';
-import { usePendingNnaCreates } from '@/hooks/usePendingNnaCreates';
 import { PendingNnaCard } from '@/modules/nna/components/PendingNnaCard';
 
+/** Listado NNA pantalla completa — solo móvil/tablet (< xl). */
 export const NnaListPage = () => {
+  const { t } = useTranslation();
   const location = useLocation();
-  const navigate = useNavigate();
-  const { clearAuth } = useAuth();
   const [statusFilter, setStatusFilter] = useState<NnaStatus | ''>('');
+  const [searchError, setSearchError] = useState<string | null>(null);
   const {
     items,
+    pendingCreates,
     isLoading,
+    isFromCache,
     error,
     searchQuery,
     setSearchQuery,
@@ -29,108 +35,102 @@ export const NnaListPage = () => {
     hasNextPage,
     searchByIdUnico,
   } = useNnaList({ status: statusFilter || undefined });
-  const { items: pendingCreates } = usePendingNnaCreates();
   const { isSearching, goToByIdUnico } = useNnaSearch();
   const flashMessage = (location.state as { message?: string } | null)?.message;
 
   const handleSearch = async () => {
+    setSearchError(null);
     const found = await goToByIdUnico(searchByIdUnico);
     if (!found && searchQuery.trim()) {
-      alert('No se encontró ficha con ese ID único');
+      setSearchError(t('nna.notFoundById'));
     }
   };
 
-  const handleLogout = () => {
-    clearAuth();
-    navigate(ROUTES.WELCOME, { replace: true });
-  };
+  const pendingLabel =
+    pendingCreates.length > 0
+      ? ` · ${t('nna.pendingLocal', { count: pendingCreates.length })}`
+      : '';
 
   return (
-    <div className="flex flex-1 flex-col">
-      <header className="border-b border-slate-200 bg-white px-4 py-5">
-        <div className="flex items-center justify-between gap-3">
-          <Link
-            to={ROUTES.DASHBOARD}
-            className="text-sm font-medium text-primary-700"
-          >
-            ← Volver al panel
-          </Link>
-          <Button
-            type="button"
-            variant="ghost"
-            className="!min-h-10 shrink-0 !px-3 text-sm"
-            onClick={handleLogout}
-          >
-            Cerrar sesión
-          </Button>
-        </div>
-        <h1 className="mt-2 text-xl font-bold text-text-primary">Fichas NNA</h1>
-        <p className="mt-1 text-base text-text-secondary">
-          {items.length} en servidor
-          {pendingCreates.length > 0
-            ? ` · ${pendingCreates.length} pendiente${pendingCreates.length !== 1 ? 's' : ''} local`
-            : ''}
-        </p>
-      </header>
-
-      <section className="flex flex-col gap-3 p-4">
-        {flashMessage && (
-          <p className="rounded-xl bg-green-50 px-4 py-3 text-base text-green-900">
-            {flashMessage}
-          </p>
+    <PageFrame
+      header={
+        <PageHeader
+          backTo={ROUTES.DASHBOARD}
+          backLabel={t('nna.backToDashboard')}
+          title={t('nna.listTitle')}
+          subtitle={`${t('nna.onServer', { count: items.length })}${pendingLabel}`}
+        />
+      }
+      scrollClassName="page-section"
+    >
+        {isFromCache && !error && (
+          <AlertBanner tone="warning">{t('nna.listFromCache')}</AlertBanner>
         )}
 
-        <div className="flex gap-2">
+        {flashMessage && (
+          <AlertBanner tone="success">{flashMessage}</AlertBanner>
+        )}
+
+        <div className="surface-card !p-4">
           <Input
-            label="Buscar por ID único"
+            label={t('nna.searchById')}
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="DC-CCS-260626-001"
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setSearchError(null);
+            }}
+            placeholder={t('nna.searchPlaceholder')}
             name="search-idUnico"
           />
+
+          {searchError && (
+            <p className="mt-2 text-sm font-medium text-danger-500" role="alert">
+              {searchError}
+            </p>
+          )}
+
+          <Button
+            variant="secondary"
+            className="mt-3 w-full"
+            isLoading={isSearching}
+            onClick={() => void handleSearch()}
+          >
+            {t('nna.searchButton')}
+          </Button>
         </div>
-        <Button
-          variant="secondary"
-          className="w-full"
-          isLoading={isSearching}
-          onClick={() => void handleSearch()}
-        >
-          Buscar ficha
-        </Button>
 
         <CatalogSelect
           catalogKey={CATALOG_KEYS.NNA_STATUS}
-          label="Filtrar por estado"
+          label={t('nna.filterByStatus')}
           value={statusFilter}
           onChange={(v) => setStatusFilter(v as NnaStatus | '')}
           name="filter-status"
-          placeholder="Todos los estados"
+          placeholder={t('nna.allStatuses')}
         />
 
-        {error && (
-          <p className="text-sm font-medium text-danger-500" role="alert">
-            {error}
-          </p>
-        )}
+        {error && <AlertBanner tone="error">{error}</AlertBanner>}
 
         {pendingCreates.length > 0 && (
           <div className="flex flex-col gap-3">
-            <h2 className="text-base font-semibold text-amber-950">
-              Cola local (sin sincronizar)
+            <h2 className="text-base font-bold text-accent-700">
+              {t('nna.localQueue')}
             </h2>
             {pendingCreates.map((pending) => (
-              <PendingNnaCard key={pending.id ?? pending.idOfflineFallback} item={pending} />
+              <PendingNnaCard
+                key={pending.id ?? pending.idOfflineFallback}
+                item={pending}
+              />
             ))}
           </div>
         )}
 
         {isLoading && items.length === 0 && pendingCreates.length === 0 ? (
-          <p className="py-8 text-center text-base text-text-secondary">
-            Cargando fichas...
+          <p className="py-8 text-center text-base text-text-muted">
+            {t('nna.loadingRecords')}
           </p>
         ) : items.length === 0 && pendingCreates.length === 0 ? (
-          <p className="py-8 text-center text-base text-text-secondary">
-            No hay registros con los filtros actuales
+          <p className="py-8 text-center text-base text-text-muted">
+            {t('nna.noRecords')}
           </p>
         ) : (
           <div className="flex flex-col gap-3">
@@ -147,20 +147,21 @@ export const NnaListPage = () => {
             isLoading={isLoading}
             onClick={loadMore}
           >
-            Cargar más
+            {t('common.loadMore')}
           </Button>
         )}
 
         <Button variant="ghost" onClick={() => void reload()}>
-          Actualizar listado
+          {t('nna.refreshList')}
         </Button>
-      </section>
 
-      <div className="sticky bottom-0 border-t border-slate-200 bg-white p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
-        <Link to={ROUTES.NNA_REGISTER} className="block">
-          <Button className="w-full">Registrar NNA</Button>
-        </Link>
-      </div>
-    </div>
+        <ResponsiveActionBar>
+          <Link to={ROUTES.NNA_REGISTER} className="block w-full lg:w-auto lg:min-w-[14rem]">
+            <Button className="w-full" variant="accent">
+              {t('nna.register')}
+            </Button>
+          </Link>
+        </ResponsiveActionBar>
+    </PageFrame>
   );
 };

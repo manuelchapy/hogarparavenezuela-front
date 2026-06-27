@@ -1,5 +1,6 @@
 import { apiClient } from '@/api/client';
 import type { ApiResponse } from '@/api/catalogTypes';
+import i18n from '@/i18n';
 import type {
   AdminUserListData,
   AdminUserListQuery,
@@ -132,7 +133,7 @@ export const getAuthErrorMessage = (error: unknown): string => {
         response?.status === 403 &&
         message.toLowerCase().includes('revisión institucional')
       ) {
-        return `${message} Si acabas de enviar tu solicitud (POST /api/auth/solicitud), un administrador debe aprobarla antes de que puedas iniciar sesión aquí.`;
+        return i18n.t('errors.accountNotActive');
       }
       return message;
     }
@@ -142,5 +143,5 @@ export const getAuthErrorMessage = (error: unknown): string => {
     return error.message;
   }
 
-  return 'Error de conexión con el servidor. Verifica que el backend esté en http://localhost:4000 y que VITE_API_BASE_URL=/api';
+  return i18n.t('errors.connection');
 };

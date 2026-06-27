@@ -1,22 +1,5 @@
 @import 'tailwindcss';
-
-@theme {
-  --color-primary-50: #eff6ff;
-  --color-primary-100: #dbeafe;
-  --color-primary-500: #3b82f6;
-  --color-primary-600: #2563eb;
-  --color-primary-700: #1d4ed8;
-  --color-primary-800: #1e3a8a;
-  --color-primary-900: #1e3a5f;
-  --color-success-500: #16a34a;
-  --color-warning-500: #ca8a04;
-  --color-danger-500: #dc2626;
-  --color-surface: #f8fafc;
-  --color-surface-elevated: #ffffff;
-  --color-text-primary: #0f172a;
-  --color-text-secondary: #475569;
-  --font-sans: 'Segoe UI', system-ui, -apple-system, sans-serif;
-}
+@import './theme/theme.css';
 
 @layer base {
   html {
@@ -25,11 +8,18 @@
   }
 
   body {
-    @apply m-0 h-full w-full overflow-x-hidden bg-surface text-text-primary font-sans text-base;
+    @apply m-0 h-full w-full bg-surface text-text-primary font-sans text-base;
   }
 
   #root {
     @apply flex h-full min-h-dvh w-full flex-col;
+  }
+
+  :root {
+    /* Fallbacks; AppMobileFooter los actualiza en runtime vía ResizeObserver. */
+    --app-bottom-nav-h: calc(3.5rem + max(0.5rem, env(safe-area-inset-bottom, 0px)));
+    --app-mobile-action-h: 0px;
+    --app-mobile-footer-stack: var(--app-bottom-nav-h);
   }
 
   input,
@@ -37,6 +27,38 @@
   textarea,
   button {
     @apply text-base;
+  }
+}
+
+@layer components {
+  .auth-hero {
+    background:
+      radial-gradient(ellipse 120% 80% at 50% -20%, rgb(245 158 11 / 0.18), transparent 55%),
+      linear-gradient(165deg, var(--color-primary-800) 0%, var(--color-primary-900) 100%);
+  }
+
+  .surface-card {
+    @apply rounded-2xl border border-border-subtle bg-surface-elevated p-5 shadow-[var(--shadow-card)];
+  }
+
+  .surface-card-interactive {
+    @apply rounded-2xl border border-border-subtle bg-surface-elevated p-5 shadow-[var(--shadow-card)] transition-colors active:bg-surface;
+  }
+
+  .form-field {
+    @apply min-h-12 w-full rounded-xl border-2 border-border-default bg-surface-elevated px-4 py-3 text-base text-text-primary placeholder:text-text-muted focus:border-border-focus focus:outline-none focus:ring-2 focus:ring-primary-100;
+  }
+
+  .page-section {
+    @apply flex flex-col gap-4 p-4 md:gap-5 md:p-6 lg:px-8 lg:py-6;
+  }
+
+  .page-grid {
+    @apply grid grid-cols-1 gap-4 md:gap-5 lg:grid-cols-2 xl:grid-cols-3;
+  }
+
+  .page-grid-span-full {
+    @apply lg:col-span-2 xl:col-span-3;
   }
 }
 

@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import type { NnaListItem } from '@/api/nnaTypes';
 import { ROUTES } from '@/constants/routes';
@@ -10,8 +11,9 @@ interface NnaCardProps {
 }
 
 export const NnaCard = ({ nna }: NnaCardProps) => {
+  const { t } = useTranslation();
   const { getLabel } = useCatalog();
-  const nombre = nna.datosNna.nombre ?? 'Desconocido/No recuerda';
+  const nombre = nna.datosNna.nombre ?? t('nna.detailUnknownName');
   const edadLabel = getLabel(
     CATALOG_KEYS.EDAD_APARENTE,
     nna.datosNna.edadAparente,
@@ -22,13 +24,13 @@ export const NnaCard = ({ nna }: NnaCardProps) => {
   return (
     <Link
       to={ROUTES.NNA_DETAIL.replace(':id', nna._id)}
-      className="block rounded-2xl border-2 border-slate-200 bg-white p-4 shadow-sm active:bg-slate-50"
+      className="surface-card-interactive block !p-4"
     >
       <div className="flex gap-4">
         <img
           src={nna.fotoUrl}
-          alt={`Foto de ${nombre}`}
-          className="h-20 w-20 shrink-0 rounded-xl object-cover"
+          alt={t('nna.cardPhotoAlt', { name: nombre })}
+          className="h-20 w-20 shrink-0 rounded-xl object-cover ring-2 ring-border-subtle"
           loading="lazy"
         />
         <div className="flex min-w-0 flex-1 flex-col gap-2">
@@ -37,14 +39,14 @@ export const NnaCard = ({ nna }: NnaCardProps) => {
               <p className="truncate text-lg font-bold text-text-primary">
                 {nombre}
               </p>
-              <p className="text-sm font-medium text-primary-700">
+              <p className="font-mono text-sm font-semibold text-primary-700">
                 {codigo}
               </p>
             </div>
             <StatusBadge statusCode={nna.statusActual} />
           </div>
           <p className="text-base text-text-secondary">{edadLabel}</p>
-          <p className="truncate text-sm text-text-secondary">
+          <p className="truncate text-sm text-text-muted">
             {nna.hallazgo.lugarExacto}
           </p>
         </div>

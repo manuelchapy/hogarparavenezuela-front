@@ -2,13 +2,18 @@ import { CATALOG_KEYS } from '@/constants/catalogKeys';
 import { useCatalog } from '@/hooks/useCatalog';
 
 const ACCOUNT_STATUS_STYLES: Record<string, string> = {
-  PENDIENTE: 'bg-amber-100 text-amber-950 border-amber-300',
-  ACTIVO: 'bg-green-100 text-green-950 border-green-300',
-  SUSPENDIDO: 'bg-red-100 text-red-950 border-red-300',
-  RECHAZADO: 'bg-slate-200 text-slate-800 border-slate-400',
+  PENDIENTE:
+    'bg-account-pending-bg text-account-pending-text border-account-pending-border',
+  ACTIVO:
+    'bg-account-active-bg text-account-active-text border-account-active-border',
+  SUSPENDIDO:
+    'bg-account-suspended-bg text-account-suspended-text border-account-suspended-border',
+  RECHAZADO:
+    'bg-account-rejected-bg text-account-rejected-text border-account-rejected-border',
 };
 
-const FALLBACK_STYLE = 'bg-slate-100 text-slate-800 border-slate-300';
+const FALLBACK_STYLE =
+  'bg-status-fallback-bg text-status-fallback-text border-status-fallback-border';
 
 interface AccountStatusBadgeProps {
   statusCode: string;

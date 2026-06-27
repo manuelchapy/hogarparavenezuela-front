@@ -13,6 +13,10 @@ import type {
 import { API_ENDPOINTS } from '@/constants/routes';
 import { db } from '@/services/db';
 import { compressImage, generateOfflineId } from '@/services/imageCompression';
+import {
+  searchCachedNnaById,
+  upsertNnaListItems,
+} from '@/services/nnaCacheService';
 import { buildUbicacionPayload } from '@/services/geoService';
 import { isNetworkOrServerError } from '@/utils/apiErrors';
 import type { NnaRegisterForm } from '@/modules/nna/schemas/nnaSchemas';
@@ -213,16 +217,23 @@ export const addTimelineEvent = async (
 export const searchNnaByIdUnico = async (
   idUnico: string,
 ): Promise<{ _id: string; idUnico: string } | null> => {
+  const query = idUnico.trim().toLowerCase();
+  if (!query) return null;
+
+  if (!navigator.onLine) {
+    return searchCachedNnaById(query);
+  }
+
   const { fetchNnaList } = await import('@/api/nnaApi');
   const data = await fetchNnaList({ limit: 50 });
-  const query = idUnico.trim().toLowerCase();
+  await upsertNnaListItems(data.items);
   const match = data.items.find((item) => {
     const candidates = [item.idUnico, item.idOfflineFallback].filter(
       (id): id is string => typeof id === 'string' && id.length > 0,
     );
     return candidates.some((id) => id.toLowerCase() === query);
   });
-  if (!match) return null;
+  if (!match) return searchCachedNnaById(query);
   const resolvedId = match.idUnico ?? match.idOfflineFallback ?? match._id;
   return { _id: match._id, idUnico: resolvedId };
 };

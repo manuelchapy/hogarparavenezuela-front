@@ -1,9 +1,15 @@
 import { useEffect } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { PageFrame } from '@/components/layout/PageFrame';
+import { PageHeader } from '@/components/layout/PageHeader';
+import { ResponsiveActionBar } from '@/components/layout/StickyActionBar';
+import { AlertBanner } from '@/components/ui/AlertBanner';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { GeoSelect } from '@/components/ui/GeoSelect';
+import { SurfaceCard } from '@/components/ui/SurfaceCard';
 import { CATALOG_KEYS } from '@/constants/catalogKeys';
 import { ROUTES } from '@/constants/routes';
 import { useCatalog } from '@/hooks/useCatalog';
@@ -15,6 +21,7 @@ import { LopnnaLegalNotice } from '@/components/ui/LopnnaLegalNotice';
 const TIMELINE_ALLOWED = ['TRASLADO', 'ATENCION_MEDICA', 'INGRESO_REFUGIO'] as const;
 
 export const NnaTimelinePage = () => {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { getItems } = useCatalog();
@@ -30,7 +37,7 @@ export const NnaTimelinePage = () => {
     useNnaTimeline(id ?? '', (updated) => {
       setNna(updated);
       navigate(ROUTES.NNA_DETAIL.replace(':id', updated._id), {
-        state: { message: 'Hito registrado en el timeline' },
+        state: { message: t('nna.timelineSuccess') },
       });
     });
 
@@ -41,104 +48,93 @@ export const NnaTimelinePage = () => {
   }, [load]);
 
   return (
-    <div className="flex flex-1 flex-col">
-      <header className="border-b border-slate-200 bg-white px-4 py-5">
-        <Link
-          to={id ? ROUTES.NNA_DETAIL.replace(':id', id) : ROUTES.NNA_LIST}
-          className="text-sm font-medium text-primary-700"
-        >
-          ← Volver a la ficha
-        </Link>
-        <h1 className="mt-2 text-xl font-bold text-text-primary">
-          Agregar hito
-        </h1>
-        {nna && (
-          <p className="mt-1 text-base text-text-secondary">{nna.idUnico}</p>
-        )}
-      </header>
-
-      <form
-        onSubmit={onSubmit}
-        className="flex flex-1 flex-col gap-4 overflow-y-auto p-4"
-        noValidate
-      >
-        <p className="rounded-xl bg-blue-50 px-4 py-3 text-base text-blue-950">
-          Solo agrega eventos al timeline. No se recrea el formulario de registro.
-        </p>
-
+    <PageFrame
+      header={
+        <PageHeader
+          backTo={id ? ROUTES.NNA_DETAIL.replace(':id', id) : ROUTES.NNA_LIST}
+          backLabel={t('nna.backToRecord')}
+          title={t('nna.timelineTitle')}
+          subtitle={nna?.idUnico}
+        />
+      }
+      scrollClassName="page-section"
+    >
+      <form onSubmit={onSubmit} className="flex flex-col gap-4" noValidate>
+        <AlertBanner tone="info">{t('nna.timelineImmutableHint')}</AlertBanner>
         <LopnnaLegalNotice variant="timeline" />
 
-        <GeoSelect
-          label="Tipo de evento *"
-          name="tipoEvent"
-          value={watch('tipoEvent')}
-          onChange={(v) =>
-            setValue(
-              'tipoEvent',
-              v as 'TRASLADO' | 'ATENCION_MEDICA' | 'INGRESO_REFUGIO',
-            )
-          }
-          options={timelineOptions}
-          placeholder="Selecciona el tipo de hito"
-        />
+        <SurfaceCard>
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-6">
+            <GeoSelect
+              label={t('nna.timelineEventType')}
+              name="tipoEvent"
+              value={watch('tipoEvent')}
+              onChange={(v) =>
+                setValue(
+                  'tipoEvent',
+                  v as 'TRASLADO' | 'ATENCION_MEDICA' | 'INGRESO_REFUGIO',
+                )
+              }
+              options={timelineOptions}
+              placeholder={t('nna.timelineEventPlaceholder')}
+            />
 
-        <Input
-          label="Ubicación / centro *"
-          {...register('ubicacionNombre')}
-          error={form.formState.errors.ubicacionNombre?.message}
-        />
+            <Input
+              label={t('nna.timelineLocation')}
+              {...register('ubicacionNombre')}
+              error={form.formState.errors.ubicacionNombre?.message}
+            />
 
-        {requiresEntidad && (
-          <Input
-            label="ID entidad de atención *"
-            placeholder="ObjectId de entidad autorizada"
-            {...register('entidadAtencionId')}
-            error={form.formState.errors.entidadAtencionId?.message}
+            {requiresEntidad && (
+              <Input
+                label={t('nna.timelineEntityId')}
+                placeholder={t('nna.timelineEntityPlaceholder')}
+                className="lg:col-span-2"
+                {...register('entidadAtencionId')}
+                error={form.formState.errors.entidadAtencionId?.message}
+              />
+            )}
+
+            <CatalogSelect
+              catalogKey={CATALOG_KEYS.ESTADO_SALUD}
+              label={t('nna.timelineHealth')}
+              value={watch('estadoSalud')}
+              onChange={(v) =>
+                setValue(
+                  'estadoSalud',
+                  v as 'ESTABLE' | 'REQUIERE_ATENCION_URGENTE' | 'CON_LESIONES_VISIBLES',
+                )
+              }
+              name="estadoSalud"
+            />
+          </div>
+
+          <Textarea
+            label={t('nna.timelineObservations')}
+            rows={3}
+            className="mt-4"
+            {...register('observaciones')}
           />
-        )}
-
-        <CatalogSelect
-          catalogKey={CATALOG_KEYS.ESTADO_SALUD}
-          label="Estado de salud *"
-          value={watch('estadoSalud')}
-          onChange={(v) =>
-            setValue(
-              'estadoSalud',
-              v as 'ESTABLE' | 'REQUIERE_ATENCION_URGENTE' | 'CON_LESIONES_VISIBLES',
-            )
-          }
-          name="estadoSalud"
-        />
-
-        <Textarea
-          label="Observaciones"
-          rows={3}
-          {...register('observaciones')}
-        />
+        </SurfaceCard>
 
         {offlineQueued && (
-          <p className="rounded-xl bg-amber-50 px-4 py-3 text-base text-amber-950">
-            Hito guardado offline. Se sincronizará al reconectar.
-          </p>
+          <AlertBanner tone="warning">{t('nna.timelineOfflineQueued')}</AlertBanner>
         )}
 
-        {submitError && (
-          <p className="text-sm font-medium text-danger-500" role="alert">
-            {submitError}
-          </p>
-        )}
+        {submitError && <AlertBanner tone="error">{submitError}</AlertBanner>}
+
+        <ResponsiveActionBar>
+          <Button
+            type="button"
+            className="w-full lg:w-auto lg:min-w-[12rem]"
+            variant="accent"
+            isLoading={isSubmitting}
+            onClick={onSubmit}
+          >
+            {t('nna.timelineSave')}
+          </Button>
+        </ResponsiveActionBar>
       </form>
-
-      <div className="sticky bottom-0 border-t border-slate-200 bg-white p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
-        <Button
-          type="button"
-          className="w-full"
-          isLoading={isSubmitting}
-          onClick={onSubmit}
-        >
-          Guardar hito
-        </Button>
-      </div>
-    </div>
+    </PageFrame>
   );
 };

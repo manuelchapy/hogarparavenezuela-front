@@ -1,19 +1,31 @@
 import { Controller } from 'react-hook-form';
-import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { PageFrame } from '@/components/layout/PageFrame';
+import { PageHeader } from '@/components/layout/PageHeader';
+import { ResponsiveActionBar } from '@/components/layout/StickyActionBar';
+import { AlertBanner } from '@/components/ui/AlertBanner';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { CatalogSelect } from '@/components/ui/CatalogSelect';
 import { PhotoCaptureInput } from '@/components/ui/PhotoCaptureInput';
+import { StepProgress } from '@/components/ui/StepProgress';
+import { SurfaceCard } from '@/components/ui/SurfaceCard';
 import { UbicacionSelector } from '@/components/ui/UbicacionSelector';
 import { CATALOG_KEYS } from '@/constants/catalogKeys';
 import { ROUTES } from '@/constants/routes';
 import { LopnnaLegalNotice } from '@/components/ui/LopnnaLegalNotice';
 import { useNnaRegister } from '@/hooks/useNnaRegister';
 
-const STEP_LABELS = ['Foto', 'Datos', 'Hallazgo', 'Evento'];
+const STEP_KEYS = [
+  'nna.registerSteps.photo',
+  'nna.registerSteps.data',
+  'nna.registerSteps.finding',
+  'nna.registerSteps.event',
+] as const;
 
 export const NnaRegisterPage = () => {
+  const { t } = useTranslation();
   const {
     form,
     step,
@@ -37,67 +49,54 @@ export const NnaRegisterPage = () => {
   const gpsLng = watch('gpsLng');
   const gpsLat = watch('gpsLat');
 
-  return (
-    <div className="flex flex-1 flex-col">
-      <header className="border-b border-slate-200 bg-white px-4 py-5">
-        <Link to={ROUTES.NNA_LIST} className="text-sm font-medium text-primary-700">
-          ← Volver al listado
-        </Link>
-        <h1 className="mt-2 text-xl font-bold text-text-primary">
-          Registrar NNA
-        </h1>
-        <div className="mt-3 flex gap-2">
-          {STEP_LABELS.map((label, index) => (
-            <span
-              key={label}
-              className={[
-                'rounded-lg px-2 py-1 text-xs font-semibold',
-                index === step
-                  ? 'bg-primary-700 text-white'
-                  : index < step
-                    ? 'bg-primary-100 text-primary-800'
-                    : 'bg-slate-100 text-slate-500',
-              ].join(' ')}
-            >
-              {label}
-            </span>
-          ))}
-        </div>
-      </header>
+  const stepLabels = STEP_KEYS.map((key) => t(key));
 
-      <form
-        onSubmit={onSubmit}
-        className="flex flex-1 flex-col gap-4 overflow-y-auto p-4"
-        noValidate
-      >
+  return (
+    <PageFrame
+      header={
+        <PageHeader
+          backTo={ROUTES.NNA_LIST}
+          backLabel={t('nna.backToList')}
+          title={t('nna.registerTitle')}
+        />
+      }
+      toolbar={
+        <div className="shrink-0 border-b border-border-subtle bg-surface-elevated px-4 pb-4">
+          <StepProgress steps={stepLabels} currentStep={step} />
+        </div>
+      }
+      scrollClassName="page-section"
+    >
+      <form onSubmit={onSubmit} className="flex flex-col gap-4" noValidate>
         {step === 0 && (
-          <>
-            <LopnnaLegalNotice variant="registration" />
-          <PhotoCaptureInput
-            value={photoFile}
-            onChange={(file) => {
-              setPhotoFile(file);
-              if (file) setPhotoError(null);
-            }}
-            error={photoError ?? undefined}
-          />
-          </>
+          <SurfaceCard>
+            <LopnnaLegalNotice variant="registration" collapsible className="mb-4" />
+            <PhotoCaptureInput
+              value={photoFile}
+              onChange={(file) => {
+                setPhotoFile(file);
+                if (file) setPhotoError(null);
+              }}
+              error={photoError ?? undefined}
+            />
+          </SurfaceCard>
         )}
 
         {step === 1 && (
-          <>
+          <SurfaceCard>
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-6">
             <Input
-              label="Nombre (opcional)"
-              placeholder="Desconocido/No recuerda"
+              label={t('nna.fieldNameOptional')}
+              placeholder={t('nna.fieldNamePlaceholder')}
               {...register('nombre')}
             />
             <Input
-              label="Nombre de padres (opcional)"
+              label={t('nna.fieldParentsOptional')}
               {...register('nombrePadres')}
             />
             <CatalogSelect
               catalogKey={CATALOG_KEYS.SEXO_NNA}
-              label="Sexo *"
+              label={t('nna.fieldSex')}
               value={watch('sexo')}
               onChange={(v) => setValue('sexo', v as 'F' | 'M' | 'DESCONOCIDO')}
               error={errors.sexo?.message}
@@ -105,7 +104,7 @@ export const NnaRegisterPage = () => {
             />
             <CatalogSelect
               catalogKey={CATALOG_KEYS.EDAD_APARENTE}
-              label="Edad aparente *"
+              label={t('nna.fieldAge')}
               value={watch('edadAparente')}
               onChange={(v) =>
                 setValue(
@@ -116,23 +115,25 @@ export const NnaRegisterPage = () => {
               error={errors.edadAparente?.message}
               name="edadAparente"
             />
+            </div>
             <Textarea
-              label="Rasgos identificativos *"
+              label={t('nna.fieldTraits')}
               rows={4}
-              placeholder="Cicatriz, ropa, señas particulares..."
+              placeholder={t('nna.fieldTraitsPlaceholder')}
               error={errors.rasgosIdentificativos?.message}
+              className="mt-4"
               {...register('rasgosIdentificativos')}
             />
 
             {isAdolescente && (
-              <div className="rounded-2xl border-2 border-amber-200 bg-amber-50 p-4">
-                <p className="mb-3 text-base font-semibold text-amber-950">
-                  Voz del NNA (Art. 80 LOPNNA) *
+              <div className="mt-4 rounded-2xl border-2 border-accent-500/40 bg-accent-100/50 p-4">
+                <p className="mb-3 text-base font-bold text-accent-700">
+                  {t('nna.adolescentVoiceTitle')}
                 </p>
-                <label className="flex min-h-12 items-center gap-3 text-base">
+                <label className="flex min-h-12 items-center gap-3 text-base font-medium">
                   <input
                     type="checkbox"
-                    className="h-5 w-5"
+                    className="h-5 w-5 accent-accent-600"
                     checked={vozDelNna?.fueEscuchado ?? false}
                     onChange={(e) =>
                       setValue('vozDelNna', {
@@ -142,18 +143,18 @@ export const NnaRegisterPage = () => {
                       })
                     }
                   />
-                  ¿Fue escuchado el NNA?
+                  {t('nna.wasHeardLabel')}
                 </label>
                 {vozDelNna?.fueEscuchado ? (
                   <Textarea
-                    label="Manifestación del NNA"
+                    label={t('nna.manifestationLabel')}
                     className="mt-3"
                     {...register('vozDelNna.manifestacion')}
                   />
                 ) : (
                   vozDelNna && (
                     <Textarea
-                      label="Justificación de no escucha"
+                      label={t('nna.noListenJustificationLabel')}
                       className="mt-3"
                       {...register('vozDelNna.justificacionNoEscucha')}
                     />
@@ -166,34 +167,39 @@ export const NnaRegisterPage = () => {
                 )}
               </div>
             )}
-          </>
+          </SurfaceCard>
         )}
 
         {step === 2 && (
-          <>
+          <SurfaceCard>
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-6">
             <Input
-              label="Lugar exacto del hallazgo *"
+              label={t('nna.fieldFindingPlace')}
               {...register('lugarExacto')}
               error={errors.lugarExacto?.message}
             />
             <Input
-              label="Fecha y hora del hallazgo *"
+              label={t('nna.fieldFindingDate')}
               type="datetime-local"
               {...register('fechaHora')}
               error={errors.fechaHora?.message}
             />
-            <div className="flex flex-col gap-2">
+            </div>
+            <div className="mt-4 flex flex-col gap-2">
               <Button
                 type="button"
                 variant="secondary"
                 isLoading={isGpsLoading}
                 onClick={captureGps}
               >
-                Obtener GPS del hallazgo
+                {t('nna.captureGps')}
               </Button>
               {useGps && gpsLng !== undefined && gpsLat !== undefined && (
-                <p className="text-sm text-text-secondary">
-                  GPS: {gpsLat.toFixed(5)}, {gpsLng.toFixed(5)}
+                <p className="text-sm text-text-muted">
+                  {t('nna.gpsCoords', {
+                    lat: gpsLat.toFixed(5),
+                    lng: gpsLng.toFixed(5),
+                  })}
                 </p>
               )}
             </div>
@@ -211,20 +217,21 @@ export const NnaRegisterPage = () => {
                 />
               )}
             />
-          </>
+          </SurfaceCard>
         )}
 
         {step === 3 && (
-          <>
+          <SurfaceCard>
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-6">
             <Input
-              label="Sitio del evento inicial *"
-              placeholder="Sitio de hallazgo — Av. Principal"
+              label={t('nna.fieldInitialSite')}
+              placeholder={t('nna.fieldInitialSitePlaceholder')}
               {...register('ubicacionNombre')}
               error={errors.ubicacionNombre?.message}
             />
             <CatalogSelect
               catalogKey={CATALOG_KEYS.ESTADO_SALUD}
-              label="Estado de salud aparente *"
+              label={t('nna.fieldHealth')}
               value={watch('estadoSalud')}
               onChange={(v) =>
                 setValue(
@@ -235,46 +242,44 @@ export const NnaRegisterPage = () => {
               error={errors.estadoSalud?.message}
               name="estadoSalud"
             />
+            </div>
             <Textarea
-              label="Observaciones"
+              label={t('nna.fieldObservations')}
               rows={3}
+              className="mt-4"
               {...register('observaciones')}
             />
-            <div className="rounded-2xl bg-slate-100 p-4 text-base text-text-secondary">
-              Al registrar se subirá la foto y se creará la ficha. Sin conexión,
-              se guardará localmente para sincronizar después.
-            </div>
-          </>
+            <AlertBanner tone="info" className="mt-4">
+              {t('nna.registerOfflineHint')}
+            </AlertBanner>
+          </SurfaceCard>
         )}
 
-        {submitError && (
-          <p className="text-sm font-medium text-danger-500" role="alert">
-            {submitError}
-          </p>
-        )}
+        {submitError && <AlertBanner tone="error">{submitError}</AlertBanner>}
+
+        <ResponsiveActionBar className="!flex-row" desktopClassName="lg:flex-row lg:justify-end">
+          {step > 0 && (
+            <Button type="button" variant="secondary" className="flex-1 lg:flex-initial lg:min-w-[10rem]" onClick={prevStep}>
+              {t('nna.prevStep')}
+            </Button>
+          )}
+          {step < 3 ? (
+            <Button type="button" className="flex-1 lg:flex-initial lg:min-w-[10rem]" variant="accent" onClick={() => void nextStep()}>
+              {t('nna.nextStep')}
+            </Button>
+          ) : (
+            <Button
+              type="button"
+              className="flex-1 lg:flex-initial lg:min-w-[10rem]"
+              variant="accent"
+              isLoading={isSubmitting}
+              onClick={onSubmit}
+            >
+              {t('nna.submitRegister')}
+            </Button>
+          )}
+        </ResponsiveActionBar>
       </form>
-
-      <div className="sticky bottom-0 flex gap-2 border-t border-slate-200 bg-white p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
-        {step > 0 && (
-          <Button type="button" variant="secondary" className="flex-1" onClick={prevStep}>
-            Atrás
-          </Button>
-        )}
-        {step < 3 ? (
-          <Button type="button" className="flex-1" onClick={() => void nextStep()}>
-            Siguiente
-          </Button>
-        ) : (
-          <Button
-            type="button"
-            className="flex-1"
-            isLoading={isSubmitting}
-            onClick={onSubmit}
-          >
-            Registrar NNA
-          </Button>
-        )}
-      </div>
-    </div>
+    </PageFrame>
   );
 };

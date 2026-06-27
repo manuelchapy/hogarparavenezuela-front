@@ -115,8 +115,8 @@ export const UbicacionSelector = ({
       )}
 
       {displayPreview && ubicacion.state && ubicacion.city && (
-        <p className="rounded-xl bg-slate-100 px-4 py-3 text-base text-text-secondary">
-          <span className="font-medium text-text-primary">Vista previa: </span>
+        <p className="rounded-xl border border-border-subtle bg-primary-50 px-4 py-3 text-base text-text-secondary">
+          <span className="font-semibold text-text-primary">Vista previa: </span>
           {displayPreview}
         </p>
       )}
