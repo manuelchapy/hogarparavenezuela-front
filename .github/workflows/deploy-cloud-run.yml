@@ -44,6 +44,7 @@ jobs:
           IMAGE_URI="${REGION}-docker.pkg.dev/${PROJECT_ID}/${GAR_REPOSITORY}/${IMAGE_NAME}:${GITHUB_SHA}"
           docker build \
             --build-arg VITE_API_BASE_URL="${{ vars.VITE_API_BASE_URL }}" \
+            --no-cache \
             --tag "${IMAGE_URI}" .
           docker push "${IMAGE_URI}"
           echo "IMAGE_URI=${IMAGE_URI}" >> "${GITHUB_ENV}"
