@@ -1,0 +1,38 @@
+export const ROLES = {
+  RESCATISTA_CIVIL: 'RESCATISTA_CIVIL',
+  PROTECCION_CIVIL: 'PROTECCION_CIVIL',
+  PERSONAL_MEDICO: 'PERSONAL_MEDICO',
+  CONSEJERO_CPNNA: 'CONSEJERO_CPNNA',
+  ADMINISTRADOR: 'ADMINISTRADOR',
+} as const;
+
+export type UserRole = (typeof ROLES)[keyof typeof ROLES];
+
+export const OPERATIONAL_ROLES: UserRole[] = [
+  ROLES.RESCATISTA_CIVIL,
+  ROLES.PROTECCION_CIVIL,
+  ROLES.PERSONAL_MEDICO,
+];
+
+/** Roles que entran por /login/operativo (incluye CPNNA en campo). */
+export const OPERATIVO_PORTAL_ROLES: UserRole[] = [
+  ...OPERATIONAL_ROLES,
+  ROLES.CONSEJERO_CPNNA,
+];
+
+export const LEGAL_CLOSURE_ROLES: UserRole[] = [
+  ROLES.CONSEJERO_CPNNA,
+  ROLES.ADMINISTRADOR,
+];
+
+export const ADMIN_ROLES: UserRole[] = [ROLES.ADMINISTRADOR];
+
+export const ACCOUNT_STATUS = {
+  PENDIENTE: 'PENDIENTE',
+  ACTIVO: 'ACTIVO',
+  SUSPENDIDO: 'SUSPENDIDO',
+  RECHAZADO: 'RECHAZADO',
+} as const;
+
+export type AccountStatus =
+  (typeof ACCOUNT_STATUS)[keyof typeof ACCOUNT_STATUS];

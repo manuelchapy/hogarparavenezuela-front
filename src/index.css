@@ -1,0 +1,50 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-primary-50: #eff6ff;
+  --color-primary-100: #dbeafe;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8;
+  --color-primary-800: #1e3a8a;
+  --color-primary-900: #1e3a5f;
+  --color-success-500: #16a34a;
+  --color-warning-500: #ca8a04;
+  --color-danger-500: #dc2626;
+  --color-surface: #f8fafc;
+  --color-surface-elevated: #ffffff;
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #475569;
+  --font-sans: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+@layer base {
+  html {
+    @apply h-full antialiased;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply m-0 h-full w-full overflow-x-hidden bg-surface text-text-primary font-sans text-base;
+  }
+
+  #root {
+    @apply flex h-full min-h-dvh w-full flex-col;
+  }
+
+  input,
+  select,
+  textarea,
+  button {
+    @apply text-base;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
