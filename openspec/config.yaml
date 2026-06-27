@@ -1,0 +1,7 @@
+schema: spec-driven
+
+# Project context
+#   context: |
+#     Tech stack: Vite, React 19, TypeScript, Tailwind CSS 4
+#     PWA with vite-plugin-pwa and Workbox
+#     Domain: Plataforma de rescate y trazabilidad de NNA
